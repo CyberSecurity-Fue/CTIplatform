@@ -1,0 +1,1443 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpg" href="../image.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#2A6FFF">
+    <meta name="description" content="CTI-Blockchain: Decentralized Cyber Threat Intelligence Platform">
+    <title>CTI-Blockchain | Decentralized Threat Intelligence</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2A6FFF;
+            --secondary: #00D4AA;
+            --accent: #FF6B6B;
+            --dark: #0A0E24;
+            --darker: #050811;
+            --light: #F8FAFC;
+            --gray: #64748B;
+            --gold: #FFD166;
+            --purple: #9D4EDD;
+            --neon-blue: #00F5FF;
+            --neon-green: #39FF14;
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+            --header-height: 70px;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            line-height: 1.6;
+            color: var(--light);
+            background: var(--dark);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.03;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(42, 111, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42, 111, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        .container {
+            max-width: 1245px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: rgba(10, 15, 28, 0.9);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(42, 111, 255, 0.2);
+            height: var(--header-height);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 0;
+            height: 100%;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--light);
+            font-family: 'Montserrat', sans-serif;
+            z-index: 1001;
+        }
+
+        .logo i {
+            color: var(--primary);
+            margin-right: 0.5rem;
+            text-shadow: 0 0 10px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+            position: relative;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-blue);
+        }
+
+        .nav-links a:hover:after {
+            width: 100%;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-block;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            cursor: pointer;
+            border: none;
+            text-align: center;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 15px rgba(42, 111, 255, 0.5);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: 1px solid var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--primary);
+            box-shadow: 0 0 15px rgba(42, 111, 255, 0.5);
+        }
+
+        /* Mobile Menu */
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            justify-content: space-between;
+            width: 30px;
+            height: 21px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            z-index: 1001;
+        }
+
+        .hamburger span {
+            display: block;
+            height: 3px;
+            width: 100%;
+            background-color: var(--light);
+            border-radius: 3px;
+            transition: var(--transition);
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: translateY(9px) rotate(45deg);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: translateY(-9px) rotate(-45deg);
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 180px 0 120px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 3rem;
+        }
+
+        .hero-text {
+            flex: 1;
+        }
+
+        .hero-visual {
+            flex: 1;
+            position: relative;
+        }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 1.5rem;
+            line-height: 1.2;
+            background: linear-gradient(90deg, var(--light), var(--neon-blue));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: 0 0 20px rgba(0, 245, 255, 0.3);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            margin-bottom: 2rem;
+            color: var(--gray);
+            max-width: 600px;
+            line-height: 1.7;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .btn-large {
+            padding: 1rem 2.5rem;
+            font-size: 1rem;
+        }
+
+        .glowing-text {
+            color: var(--neon-green);
+            text-shadow: 0 0 10px var(--neon-green);
+            font-weight: 600;
+        }
+
+        .platform-visual {
+            width: 100%;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            box-shadow: 0 0 30px rgba(42, 111, 255, 0.1);
+        }
+
+        .dashboard-preview {
+            position: absolute;
+            width: 90%;
+            height: 80%;
+            background: rgba(10, 15, 28, 0.9);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(42, 111, 255, 0.3);
+        }
+
+        .dashboard-header {
+            height: 50px;
+            background: rgba(42, 111, 255, 0.2);
+            display: flex;
+            align-items: center;
+            padding: 0 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .dashboard-content {
+            padding: 20px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            height: calc(100% - 50px);
+        }
+
+        .dashboard-card {
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 6px;
+            padding: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: var(--transition);
+        }
+
+        .dashboard-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(42, 111, 255, 0.2);
+        }
+
+        .dashboard-card h3 {
+            font-size: 0.9rem;
+            margin-bottom: 10px;
+            color: var(--secondary);
+            font-weight: 600;
+        }
+
+        .threat-list {
+            list-style: none;
+        }
+
+        .threat-list li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.8rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .threat-level {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+
+        .high {
+            background: rgba(255, 107, 107, 0.2);
+            color: var(--accent);
+            text-shadow: 0 0 5px rgba(255, 107, 107, 0.5);
+        }
+
+        .medium {
+            background: rgba(255, 209, 102, 0.2);
+            color: var(--gold);
+        }
+
+        .low {
+            background: rgba(0, 212, 170, 0.2);
+            color: var(--secondary);
+            text-shadow: 0 0 5px rgba(0, 212, 170, 0.5);
+        }
+
+        /* Problem Section */
+        .problem {
+            padding: 100px 0;
+            background: rgba(5, 8, 17, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .problem-content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4rem;
+        }
+
+        .problem-text {
+            flex: 1;
+        }
+
+        .problem-visual {
+            flex: 1;
+            position: relative;
+        }
+
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--light);
+        }
+
+        .section-subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+            margin-bottom: 2rem;
+            max-width: 600px;
+        }
+
+        .feature-list {
+            list-style: none;
+            margin-top: 2rem;
+        }
+
+        .feature-list li {
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .feature-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: rgba(0, 212, 170, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            flex-shrink: 0;
+            color: var(--secondary);
+        }
+
+        .feature-list h3 {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+            color: var(--light);
+        }
+
+        .feature-list p {
+            color: var(--gray);
+            font-size: 0.95rem;
+        }
+
+        .blockchain-visual {
+            width: 100%;
+            height: 400px;
+            background: rgba(255, 255, 255, 0.03);
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            box-shadow: 0 0 30px rgba(42, 111, 255, 0.1);
+        }
+
+        .blockchain-node {
+            position: absolute;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: var(--primary);
+            box-shadow: 0 0 10px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .blockchain-connection {
+            position: absolute;
+            height: 1px;
+            background: linear-gradient(90deg, var(--primary), transparent);
+            transform-origin: left center;
+        }
+
+        /* Demo Section */
+        .demo {
+            padding: 100px 0;
+            background: rgba(10, 15, 28, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .demo-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 4rem;
+        }
+
+        .demo-code {
+            flex: 1;
+            background: rgba(5, 8, 17, 0.9);
+            border-radius: 10px;
+            padding: 2rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            box-shadow: 0 0 30px rgba(42, 111, 255, 0.1);
+        }
+
+        .demo-form {
+            flex: 1;
+            background: rgba(5, 8, 17, 0.9);
+            border-radius: 10px;
+            padding: 2rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            box-shadow: 0 0 30px rgba(42, 111, 255, 0.1);
+        }
+
+        .code-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .code-header h3 {
+            font-size: 1.2rem;
+            color: var(--secondary);
+        }
+
+        .code-block {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 6px;
+            padding: 1.5rem;
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            color: var(--neon-green);
+            border: 1px solid rgba(0, 212, 170, 0.2);
+            overflow-x: auto;
+        }
+
+        .code-line {
+            margin-bottom: 0.5rem;
+        }
+
+        .code-key {
+            color: var(--primary);
+        }
+
+        .code-value {
+            color: var(--neon-green);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--light);
+            font-weight: 500;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.8rem 1rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(42, 111, 255, 0.3);
+            border-radius: 4px;
+            color: var(--light);
+            font-family: 'Source Code Pro', monospace;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(42, 111, 255, 0.3);
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 100px 0;
+            background: rgba(5, 8, 17, 0.8);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .contact-content {
+            display: flex;
+            align-items: flex-start;
+            justify-content: space-between;
+            gap: 4rem;
+        }
+
+        .contact-info {
+            flex: 1;
+        }
+
+        .contact-form {
+            flex: 1;
+            background: rgba(5, 8, 17, 0.9);
+            border-radius: 10px;
+            padding: 2rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            box-shadow: 0 0 30px rgba(42, 111, 255, 0.1);
+        }
+
+        .contact-details {
+            margin-top: 2rem;
+        }
+
+        .contact-item {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: rgba(42, 111, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--primary);
+        }
+
+        /* Footer */
+        footer {
+            background: var(--darker);
+            padding: 60px 0 30px;
+            border-top: 1px solid rgba(42, 111, 255, 0.2);
+        }
+
+        .footer-content {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 3rem;
+            margin-bottom: 3rem;
+        }
+
+        .footer-column h3 {
+            font-family: 'Montserrat', sans-serif;
+            margin-bottom: 1.5rem;
+            font-size: 1.3rem;
+            color: var(--light);
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 0.8rem;
+        }
+
+        .footer-links a {
+            color: var(--gray);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .footer-links a:hover {
+            color: var(--primary);
+        }
+
+        .copyright {
+            text-align: center;
+            padding-top: 2rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(42, 111, 255, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(42, 111, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(42, 111, 255, 0);
+            }
+        }
+
+        @keyframes float {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        @keyframes glow {
+            0%, 100% {
+                text-shadow: 0 0 5px var(--neon-green);
+            }
+            50% {
+                text-shadow: 0 0 20px var(--neon-green), 0 0 30px var(--neon-green);
+            }
+        }
+
+        .floating {
+            animation: float 5s ease-in-out infinite;
+        }
+
+        .glow {
+            animation: glow 2s ease-in-out infinite;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1200px) {
+            .container {
+                max-width: 960px;
+            }
+            
+            h1 {
+                font-size: 3rem;
+            }
+            
+            h2 {
+                font-size: 2.2rem;
+            }
+        }
+
+        @media (max-width: 992px) {
+            .container {
+                max-width: 720px;
+            }
+            
+            .hero-content, .problem-content, .demo-content, .contact-content {
+                flex-direction: column;
+            }
+            
+            .hero-visual, .problem-visual {
+                margin-top: 3rem;
+            }
+            
+            .dashboard-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .hero-buttons {
+                justify-content: center;
+            }
+            
+            .btn-large {
+                padding: 0.8rem 1.8rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                max-width: 540px;
+            }
+            
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            h2 {
+                font-size: 2rem;
+            }
+            
+            .hero, .problem, .demo, .contact {
+                padding: 80px 0;
+            }
+            
+            .platform-visual, .blockchain-visual {
+                height: 300px;
+            }
+            
+            .nav-links {
+                position: fixed;
+                top: 0;
+                right: -100%;
+                width: 80%;
+                max-width: 300px;
+                height: 100vh;
+                background: var(--darker);
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                transition: var(--transition);
+                z-index: 1000;
+                box-shadow: -5px 0 15px rgba(0, 0, 0, 0.3);
+            }
+            
+            .nav-links.active {
+                right: 0;
+            }
+            
+            .nav-links li {
+                margin: 1.5rem 0;
+            }
+            
+            .hamburger {
+                display: flex;
+            }
+            
+            .auth-buttons {
+                display: none;
+            }
+            
+            .mobile-auth {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+                margin-top: 2rem;
+                width: 100%;
+                padding: 0 2rem;
+            }
+            
+            .mobile-auth .btn {
+                width: 100%;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 576px) {
+            .container {
+                padding: 0 15px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            h2 {
+                font-size: 1.7rem;
+            }
+            
+            .hero p, .section-subtitle {
+                font-size: 1rem;
+            }
+            
+            .hero-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .btn-large {
+                width: 100%;
+                max-width: 300px;
+            }
+            
+            .demo-code, .demo-form, .contact-form {
+                padding: 1.5rem;
+            }
+            
+            .footer-content {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        /* App-like features */
+        @media (max-width: 768px) and (orientation: portrait) {
+            .hero {
+                padding-top: 140px;
+            }
+        }
+
+        /* Prevent horizontal scroll */
+        body {
+            overflow-x: hidden;
+        }
+
+        /* Smooth scrolling for iOS */
+        .container, section {
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Mobile Auth Buttons */
+        .mobile-auth {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background -->
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    <div class="grid-bg"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                CTI-Blockchain
+            </div>
+            <ul class="nav-links">
+                <li><a href="#">Home</a></li>
+                <li><a href="Platform.html">Platform</a></li>
+                <li><a href="threatIntelligance.html">Threat Intelligence</a></li>
+                <li><a href="#">How It Works</a></li>
+                <li><a href="#">Pricing</a></li>
+                <li><a href="#">About</a></li>
+                <div class="mobile-auth">
+                    <a href="../Pages/User/login.html" class="btn btn-outline">Log In</a>
+                    <a href="../Pages/User/Register.html" class="btn btn-primary">Sign Up</a>
+                </div>
+            </ul>
+            <div class="auth-buttons">
+                <a href="../Pages/User/login.html" class="btn btn-outline">Log In</a>
+                <a href="../Pages/User/Register.html" class="btn btn-primary">Sign Up</a>
+            </div>
+            <button class="hamburger" id="hamburger">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container hero-content">
+            <div class="hero-text">
+                <h1>Crowdsourced Cyber Threat Intelligence with Blockchain</h1>
+                <p>A decentralized way to share and verify cyber threat data securely and anonymously. Built for researchers, SOC teams, and organizations that value trust and transparency.</p>
+                <div class="hero-buttons">
+                    <a href="#" class="btn btn-primary btn-large">Explore Threats</a>
+                    <a href="#" class="btn btn-outline btn-large">Submit an IoC</a>
+                </div>
+                <p style="margin-top: 2rem; font-size: 1rem;">
+                    <span class="glowing-text">Zero-Trust ledger for Indicators of Compromise</span> • Transparent provenance • Immutable records • Privacy by design
+                </p>
+            </div>
+            <div class="hero-visual">
+                <div class="platform-visual floating">
+                    <div class="dashboard-preview">
+                        <div class="dashboard-header">
+                            <span style="color: var(--secondary); font-weight: 600;">Threat Intelligence Dashboard</span>
+                        </div>
+                        <div class="dashboard-content">
+                            <div class="dashboard-card">
+                                <h3>Recent Threats</h3>
+                                <ul class="threat-list">
+                                    <li>185.22.33.45 <span class="threat-level high">High</span></li>
+                                    <li>malicious-domain.com <span class="threat-level medium">Medium</span></li>
+                                    <li>abc123def456... <span class="threat-level high">High</span></li>
+                                    <li>phishing-attack.net <span class="threat-level medium">Medium</span></li>
+                                </ul>
+                            </div>
+                            <div class="dashboard-card">
+                                <h3>Threat Statistics</h3>
+                                <div style="margin-top: 15px;">
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span>IP Addresses</span>
+                                        <span>12,458</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span>Domains</span>
+                                        <span>8,742</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                        <span>File Hashes</span>
+                                        <span>15,329</span>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between;">
+                                        <span>URLs</span>
+                                        <span>6,891</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <h3>Submission Activity</h3>
+                                <div style="margin-top: 15px; height: 100px; background: rgba(255,255,255,0.03); border-radius: 5px; display: flex; align-items: flex-end; padding: 10px;">
+                                    <div style="display: flex; justify-content: space-between; width: 100%;">
+                                        <div style="width: 15%; height: 40%; background: var(--primary); border-radius: 2px;"></div>
+                                        <div style="width: 15%; height: 70%; background: var(--secondary); border-radius: 2px;"></div>
+                                        <div style="width: 15%; height: 30%; background: var(--primary); border-radius: 2px;"></div>
+                                        <div style="width: 15%; height: 90%; background: var(--accent); border-radius: 2px;"></div>
+                                        <div style="width: 15%; height: 50%; background: var(--secondary); border-radius: 2px;"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dashboard-card">
+                                <h3>Verified Sources</h3>
+                                <div style="margin-top: 15px;">
+                                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                        <div style="width: 8px; height: 8px; background: var(--secondary); border-radius: 50%; margin-right: 10px;"></div>
+                                        <span>Cybersecurity Firm A</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                        <div style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%; margin-right: 10px;"></div>
+                                        <span>Research Institute B</span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; margin-bottom: 10px;">
+                                        <div style="width: 8px; height: 8px; background: var(--accent); border-radius: 50%; margin-right: 10px;"></div>
+                                        <span>Financial Sector C</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Problem Section -->
+    <section class="problem">
+        <div class="container problem-content">
+            <div class="problem-text">
+                <h2>Why sharing threat intel is hard</h2>
+                <p class="section-subtitle">Organizations hesitate to share Indicators of Compromise due to limited trust, fear of data leakage, and unverifiable sources. Information ends up siloed, slowing collective defense.</p>
+                
+                <h3 style="margin-top: 2.5rem; margin-bottom: 1.5rem; color: var(--secondary);">Blockchain-backed solution</h3>
+                <p class="section-subtitle">Our smart contracts enable anonymous submissions and public verification. Every IoC is timestamped, signed, and stored as an immutable on-chain record.</p>
+                
+                <ul class="feature-list">
+                    <li>
+                        <div class="feature-icon">
+                            <i class="fas fa-link"></i>
+                        </div>
+                        <div>
+                            <h3>Blockchain</h3>
+                            <p>Decentralized and tamper-proof ledger for all threat data</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="feature-icon">
+                            <i class="fas fa-user-secret"></i>
+                        </div>
+                        <div>
+                            <h3>Anonymity</h3>
+                            <p>Contributors remain private while sharing valuable intelligence</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="feature-icon">
+                            <i class="fas fa-shield-alt"></i>
+                        </div>
+                        <div>
+                            <h3>Integrity</h3>
+                            <p>Data cannot be tampered with after submission</p>
+                        </div>
+                    </li>
+                    <li>
+                        <div class="feature-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div>
+                            <h3>Crowdsourced</h3>
+                            <p>Global community of security professionals sharing intelligence</p>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+            <div class="problem-visual">
+                <div class="blockchain-visual" id="blockchainVisual">
+                    <!-- Blockchain nodes and connections will be added via JS -->
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Demo Section -->
+    <section class="demo">
+        <div class="container demo-content">
+            <div class="demo-code">
+                <div class="code-header">
+                    <h3>Smart Contract Demo (Mock)</h3>
+                    <span style="color: var(--gray); font-size: 0.9rem;">Explore a simulated event log for a submitted indicator of Compromise</span>
+                </div>
+                <div class="code-block">
+                    <div class="code-line">{</div>
+                    <div class="code-line">&nbsp;&nbsp;"<span class="code-key">type</span>": "<span class="code-value">IP</span>",</div>
+                    <div class="code-line">&nbsp;&nbsp;"<span class="code-key">value</span>": "<span class="code-value">185.22.33.45</span>",</div>
+                    <div class="code-line">&nbsp;&nbsp;"<span class="code-key">threatLevel</span>": "<span class="code-value">High</span>",</div>
+                    <div class="code-line">&nbsp;&nbsp;"<span class="code-key">timestamp</span>": "<span class="code-value">2025-10-07T14:00:00Z</span>"</div>
+                    <div class="code-line">}</div>
+                </div>
+            </div>
+            <div class="demo-form">
+                <div class="code-header">
+                    <h3>Submit an IoC (Prototype)</h3>
+                    <span style="color: var(--gray); font-size: 0.9rem;">This is a static demo to illustrate the IoC submission process</span>
+                </div>
+                <form id="iocForm">
+                    <div class="form-group">
+                        <label for="type">Type</label>
+                        <select class="form-control" id="type">
+                            <option value="IP">IP Address</option>
+                            <option value="Domain">Domain</option>
+                            <option value="URL">URL</option>
+                            <option value="Hash">File Hash</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="value">Value</label>
+                        <input type="text" class="form-control" id="value" placeholder="e.g. 185.22.33.45">
+                    </div>
+                    <div class="form-group">
+                        <label for="threatLevel">Threat Level</label>
+                        <select class="form-control" id="threatLevel">
+                            <option value="Low">Low</option>
+                            <option value="Medium">Medium</option>
+                            <option value="High">High</option>
+                            <option value="Critical">Critical</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="timestamp">Timestamp</label>
+                        <input type="text" class="form-control" id="timestamp" value="2025-10-07T14:00:00Z" readonly>
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%;">Simulate Write</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact">
+        <div class="container contact-content">
+            <div class="contact-info">
+                <h2>Get in Touch</h2>
+                <p class="section-subtitle">Join the project, propose collaborations, or request a demo.</p>
+                
+                <div class="contact-details">
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fas fa-envelope"></i>
+                        </div>
+                        <div>
+                            <h3>Email</h3>
+                            <p>contact@cti-sharing</p>
+                        </div>
+                    </div>
+                    <div class="contact-item">
+                        <div class="contact-icon">
+                            <i class="fab fa-github"></i>
+                        </div>
+                        <div>
+                            <h3>GitHub</h3>
+                            <p>github.com/cti-share</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="contact-form">
+                <form>
+                    <div class="form-group">
+                        <label for="name">Name</label>
+                        <input type="text" class="form-control" id="name" placeholder="Your name">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" class="form-control" id="email" placeholder="you@example.com">
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea class="form-control" id="message" rows="5" placeholder="How can we help?"></textarea>
+                    </div>
+                    <button type="button" class="btn btn-primary" style="width: 100%;">Send Message</button>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-column">
+                    <h3>CTI-Blockchain</h3>
+                    <p>The decentralized platform for secure, anonymous cyber threat intelligence sharing.</p>
+                </div>
+                <div class="footer-column">
+                    <h3>Platform</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Threat Intelligence</a></li>
+                        <li><a href="#">How It Works</a></li>
+                        <li><a href="#">API Documentation</a></li>
+                        <li><a href="#">Pricing</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Resources</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">Blog</a></li>
+                        <li><a href="#">Case Studies</a></li>
+                        <li><a href="#">Whitepapers</a></li>
+                        <li><a href="#">Support</a></li>
+                    </ul>
+                </div>
+                <div class="footer-column">
+                    <h3>Company</h3>
+                    <ul class="footer-links">
+                        <li><a href="#">About Us</a></li>
+                        <li><a href="#">Careers</a></li>
+                        <li><a href="#">Contact</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                <p>© 2025 CTI Blockchain — A research prototype.</p>
+                <p style="margin-top: 0.5rem;">
+                    <a href="#" style="color: var(--gray); margin: 0 0.5rem;">Home</a>
+                    <a href="#" style="color: var(--gray); margin: 0 0.5rem;">About</a>
+                    <a href="#" style="color: var(--gray); margin: 0 0.5rem;">Contact</a>
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Matrix Background
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+        
+        resizeCanvas();
+        
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
+        const charArray = chars.split("");
+        
+        let fontSize = 12;
+        let columns = canvas.width / fontSize;
+        
+        const drops = [];
+        for(let i = 0; i < columns; i++) {
+            drops[i] = 1;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(5, 8, 17, 0.04)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "#0F0";
+            ctx.font = fontSize + "px monospace";
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        let matrixInterval = setInterval(drawMatrix, 35);
+        
+        // Adjust matrix for mobile performance
+        function adjustMatrixForScreen() {
+            clearInterval(matrixInterval);
+            
+            if (window.innerWidth < 768) {
+                fontSize = 10;
+                columns = canvas.width / fontSize;
+                
+                // Reset drops array
+                drops.length = 0;
+                for(let i = 0; i < columns; i++) {
+                    drops[i] = 1;
+                }
+                
+                matrixInterval = setInterval(drawMatrix, 50); // Slower on mobile
+            } else {
+                fontSize = 12;
+                columns = canvas.width / fontSize;
+                
+                // Reset drops array
+                drops.length = 0;
+                for(let i = 0; i < columns; i++) {
+                    drops[i] = 1;
+                }
+                
+                matrixInterval = setInterval(drawMatrix, 35);
+            }
+        }
+        
+        // Blockchain Visualization
+        const blockchainVisual = document.getElementById('blockchainVisual');
+        
+        function createBlockchainVisualization() {
+            // Clear existing nodes and connections
+            blockchainVisual.innerHTML = '';
+            
+            // Create blockchain nodes
+            const nodeCount = window.innerWidth < 768 ? 10 : 15;
+            
+            for (let i = 0; i < nodeCount; i++) {
+                const node = document.createElement('div');
+                node.classList.add('blockchain-node');
+                
+                const left = Math.random() * 90 + 5;
+                const top = Math.random() * 90 + 5;
+                const delay = Math.random() * 2;
+                
+                node.style.left = `${left}%`;
+                node.style.top = `${top}%`;
+                node.style.animationDelay = `${delay}s`;
+                
+                blockchainVisual.appendChild(node);
+            }
+            
+            // Create connections between nodes
+            const connectionCount = window.innerWidth < 768 ? 7 : 10;
+            
+            for (let i = 0; i < connectionCount; i++) {
+                const connection = document.createElement('div');
+                connection.classList.add('blockchain-connection');
+                
+                const startX = Math.random() * 80 + 10;
+                const startY = Math.random() * 80 + 10;
+                const length = Math.random() * 30 + 10;
+                const angle = Math.random() * 360;
+                
+                connection.style.left = `${startX}%`;
+                connection.style.top = `${startY}%`;
+                connection.style.width = `${length}%`;
+                connection.style.transform = `rotate(${angle}deg)`;
+                
+                blockchainVisual.appendChild(connection);
+            }
+        }
+        
+        createBlockchainVisualization();
+        
+        // Mobile Menu Toggle
+        const hamburger = document.getElementById('hamburger');
+        const navLinks = document.querySelector('.nav-links');
+        
+        hamburger.addEventListener('click', function() {
+            hamburger.classList.toggle('active');
+            navLinks.classList.toggle('active');
+            
+            // Prevent body scroll when menu is open
+            if (navLinks.classList.contains('active')) {
+                document.body.style.overflow = 'hidden';
+            } else {
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // Close menu when clicking on a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', function() {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            });
+        });
+        
+        // Form interaction
+        document.querySelectorAll('.form-control').forEach(input => {
+            input.addEventListener('focus', function() {
+                this.style.boxShadow = '0 0 10px rgba(42, 111, 255, 0.5)';
+            });
+            
+            input.addEventListener('blur', function() {
+                this.style.boxShadow = 'none';
+            });
+        });
+        
+        // Add scroll animations
+        window.addEventListener('scroll', function() {
+            const scrolled = window.pageYOffset;
+            const rate = scrolled * -0.5;
+            
+            document.querySelector('.grid-bg').style.transform = `translateY(${rate}px)`;
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            resizeCanvas();
+            adjustMatrixForScreen();
+            createBlockchainVisualization();
+            
+            // Close mobile menu if open when resizing to larger screen
+            if (window.innerWidth > 768 && navLinks.classList.contains('active')) {
+                hamburger.classList.remove('active');
+                navLinks.classList.remove('active');
+                document.body.style.overflow = 'auto';
+            }
+        });
+        
+        // Initialize for current screen size
+        adjustMatrixForScreen();
+        
+        // Prevent default form submission
+        document.querySelectorAll('form').forEach(form => {
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+            });
+        });
+        
+        // Simulate form submission for demo
+        document.querySelector('#iocForm button').addEventListener('click', function() {
+            const type = document.getElementById('type').value;
+            const value = document.getElementById('value').value;
+            const threatLevel = document.getElementById('threatLevel').value;
+            
+            if (value) {
+                alert(`Simulated submission:\nType: ${type}\nValue: ${value}\nThreat Level: ${threatLevel}\n\nThis would be written to the blockchain in a real implementation.`);
+                document.getElementById('value').value = '';
+            } else {
+                alert('Please enter a value for the IoC.');
+            }
+        });
+        
+        // Add touch-friendly improvements
+        document.querySelectorAll('.btn, .nav-links a').forEach(element => {
+            element.addEventListener('touchstart', function() {
+                this.style.transform = 'scale(0.98)';
+            });
+            
+            element.addEventListener('touchend', function() {
+                this.style.transform = 'scale(1)';
+            });
+        });
+    </script>
+</body>
+</html>
