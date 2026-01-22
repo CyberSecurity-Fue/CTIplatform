@@ -1,0 +1,2765 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpg" href="../image.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat Search | CTI-Blockchain | Advanced IOC Search</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <style>
+        :root {
+            --primary: #2A6FFF;
+            --secondary: #00D4AA;
+            --accent: #FF6B6B;
+            --dark: #0A0F1C;
+            --darker: #050811;
+            --light: #F8FAFC;
+            --gray: #64748B;
+            --gold: #FFD166;
+            --purple: #9D4EDD;
+            --neon-blue: #00F5FF;
+            --neon-green: #39FF14;
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            line-height: 1.6;
+            color: var(--light);
+            background: var(--dark);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.03;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(42, 111, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42, 111, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: rgba(10, 15, 28, 0.9);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(42, 111, 255, 0.2);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .logo i {
+            color: var(--primary);
+            margin-right: 0.5rem;
+            text-shadow: 0 0 10px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+            position: relative;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-blue);
+        }
+
+        .nav-links a:hover:after {
+            width: 100%;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+        }
+
+        .user-profile {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            cursor: pointer;
+            padding: 0.5rem;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .user-profile:hover {
+            background: rgba(42, 111, 255, 0.1);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+
+        .user-info {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .user-name {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--light);
+        }
+
+        .user-role {
+            font-size: 0.75rem;
+            color: var(--secondary);
+            text-transform: capitalize;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-block;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+            border: none;
+            cursor: pointer;
+            font-family: 'Source Code Pro', monospace;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 15px rgba(42, 111, 255, 0.5);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: 1px solid var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--primary);
+            box-shadow: 0 0 15px rgba(42, 111, 255, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: var(--secondary);
+            color: var(--dark);
+            border: 1px solid var(--secondary);
+        }
+
+        .btn-secondary:hover {
+            background: transparent;
+            color: var(--secondary);
+            box-shadow: 0 0 15px rgba(0, 212, 170, 0.5);
+        }
+
+        .btn-warning {
+            background: var(--gold);
+            color: var(--dark);
+            border: 1px solid var(--gold);
+        }
+
+        .btn-warning:hover {
+            background: transparent;
+            color: var(--gold);
+            box-shadow: 0 0 15px rgba(255, 209, 102, 0.5);
+        }
+
+        .btn-small {
+            padding: 0.4rem 0.8rem;
+            font-size: 0.8rem;
+        }
+
+        /* Dropdown Menu */
+        .dropdown {
+            position: relative;
+        }
+
+        .dropdown-menu {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: rgba(10, 15, 28, 0.95);
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            border-radius: 6px;
+            min-width: 200px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
+            display: none;
+            z-index: 1001;
+        }
+
+        .dropdown-menu.show {
+            display: block;
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .dropdown-item {
+            padding: 0.8rem 1rem;
+            color: var(--light);
+            text-decoration: none;
+            display: block;
+            transition: var(--transition);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background: rgba(42, 111, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .dropdown-item i {
+            width: 20px;
+            margin-right: 0.5rem;
+        }
+
+        /* Platform Layout */
+        .platform-layout {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: rgba(10, 15, 28, 0.9);
+            border-right: 1px solid rgba(42, 111, 255, 0.2);
+            padding: 2rem 1rem;
+            position: fixed;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            color: var(--gray);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(42, 111, 255, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-section {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-section h3 {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .page-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Search Layout */
+        .search-layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 2rem;
+        }
+
+        /* Search Filters Sidebar */
+        .search-filters {
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            height: fit-content;
+            position: sticky;
+            top: 100px;
+        }
+
+        .filters-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 1.5rem;
+        }
+
+        .filters-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--light);
+        }
+
+        .filter-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .filter-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--light);
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .filter-control {
+            width: 100%;
+            padding: 0.7rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(42, 111, 255, 0.3);
+            border-radius: 4px;
+            color: var(--light);
+            font-family: 'Source Code Pro', monospace;
+            font-size: 0.9rem;
+        }
+
+        .filter-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(42, 111, 255, 0.3);
+        }
+
+        .range-slider {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .range-value {
+            min-width: 40px;
+            text-align: center;
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .date-range input {
+            flex: 1;
+        }
+
+        .tags-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .tag {
+            background: rgba(42, 111, 255, 0.2);
+            color: var(--primary);
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tag:hover {
+            background: rgba(42, 111, 255, 0.4);
+        }
+
+        .tag.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+        }
+
+        .filter-actions .btn {
+            flex: 1;
+            padding: 0.6rem;
+            font-size: 0.85rem;
+        }
+
+        /* Search Results */
+        .search-results {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        /* Search Bar */
+        .search-bar-container {
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 10px;
+            padding: 1.5rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+        }
+
+        .search-bar {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 0.8rem 1.5rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(42, 111, 255, 0.3);
+            border-radius: 4px;
+            color: var(--light);
+            font-family: 'Source Code Pro', monospace;
+            font-size: 1rem;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 10px rgba(42, 111, 255, 0.3);
+        }
+
+        .search-suggestions {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(10, 15, 28, 0.95);
+            border: 1px solid rgba(42, 111, 255, 0.3);
+            border-radius: 0 0 4px 4px;
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            display: none;
+        }
+
+        .suggestion-item {
+            padding: 0.8rem 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .suggestion-item:hover {
+            background: rgba(42, 111, 255, 0.2);
+        }
+
+        .suggestion-value {
+            font-weight: 500;
+            color: var(--light);
+        }
+
+        .suggestion-type {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-left: 0.5rem;
+        }
+
+        /* Results Stats */
+        .results-stats {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+        }
+
+        .stats-item {
+            text-align: center;
+        }
+
+        .stats-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        .stats-label {
+            font-size: 0.8rem;
+            color: var(--gray);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Results Grid */
+        .results-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 1.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .results-grid {
+                grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* IOC Card */
+        .ioc-card {
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            overflow: hidden;
+            transition: var(--transition);
+        }
+
+        .ioc-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .ioc-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ioc-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .type-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 6px;
+            background: rgba(42, 111, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary);
+        }
+
+        .type-label {
+            font-weight: 600;
+            color: var(--light);
+        }
+
+        .ioc-threat {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .threat-badge {
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-weight: 600;
+            font-size: 0.8rem;
+        }
+
+        .threat-critical { background: rgba(157, 78, 221, 0.2); color: var(--purple); border: 1px solid var(--purple); }
+        .threat-high { background: rgba(255, 107, 107, 0.2); color: var(--accent); border: 1px solid var(--accent); }
+        .threat-medium { background: rgba(255, 209, 102, 0.2); color: var(--gold); border: 1px solid var(--gold); }
+        .threat-low { background: rgba(0, 212, 170, 0.2); color: var(--secondary); border: 1px solid var(--secondary); }
+
+        .ioc-content {
+            padding: 1.5rem;
+        }
+
+        .ioc-value {
+            font-family: 'Source Code Pro', monospace;
+            font-size: 1.1rem;
+            color: var(--light);
+            margin-bottom: 1rem;
+            word-break: break-all;
+        }
+
+        .ioc-description {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-bottom: 1rem;
+            line-height: 1.5;
+        }
+
+        .ioc-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1rem;
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .confidence-meter {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .confidence-bar {
+            width: 60px;
+            height: 4px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .confidence-fill {
+            height: 100%;
+            background: var(--primary);
+        }
+
+        .confidence-text {
+            color: var(--primary);
+            font-weight: 600;
+        }
+
+        .ioc-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .ioc-tag {
+            background: rgba(42, 111, 255, 0.1);
+            color: var(--primary);
+            padding: 0.2rem 0.6rem;
+            border-radius: 12px;
+            font-size: 0.75rem;
+        }
+
+        .ioc-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1rem 1.5rem;
+            background: rgba(0, 0, 0, 0.2);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .ioc-date {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+
+        .ioc-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Empty State */
+        .empty-state {
+            grid-column: 1 / -1;
+            text-align: center;
+            padding: 4rem 2rem;
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 10px;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+        }
+
+        .empty-icon {
+            font-size: 3rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+        }
+
+        .empty-title {
+            font-size: 1.5rem;
+            color: var(--light);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-text {
+            color: var(--gray);
+            max-width: 500px;
+            margin: 0 auto 1.5rem;
+        }
+
+        /* Pagination */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+            margin-top: 2rem;
+        }
+
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(10, 15, 28, 0.7);
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            border-radius: 4px;
+            color: var(--light);
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+        }
+
+        .page-btn:hover:not(.disabled) {
+            background: rgba(42, 111, 255, 0.2);
+            border-color: var(--primary);
+        }
+
+        .page-btn.active {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .page-btn.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .page-info {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin: 0 1rem;
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--light);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: var(--secondary);
+            border-left: 4px solid var(--neon-green);
+        }
+
+        .toast.error {
+            background: var(--accent);
+            border-left: 4px solid #ff3b3b;
+        }
+
+        .toast.info {
+            background: var(--primary);
+            border-left: 4px solid var(--neon-blue);
+        }
+
+        /* Modal for IOC Details */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            backdrop-filter: blur(5px);
+        }
+
+        .modal-content {
+            position: relative;
+            background: rgba(10, 15, 28, 0.95);
+            border: 1px solid rgba(42, 111, 255, 0.3);
+            border-radius: 10px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            margin: 5vh auto;
+            padding: 2rem;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: none;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .modal-close:hover {
+            color: var(--accent);
+        }
+
+        /* AI Analysis Badge */
+        .ai-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: rgba(157, 78, 221, 0.2);
+            color: var(--purple);
+            padding: 0.3rem 0.8rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        /* Session Warning */
+        .session-warning {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .session-warning-content {
+            background: rgba(10, 15, 28, 0.95);
+            padding: 2rem;
+            border-radius: 10px;
+            max-width: 400px;
+            text-align: center;
+            border: 1px solid rgba(42, 111, 255, 0.3);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        /* Tag Cloud */
+        .tag-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+            margin-top: 1rem;
+        }
+
+        .cloud-tag {
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: var(--transition);
+            border: none;
+            background: rgba(42, 111, 255, 0.1);
+            color: var(--primary);
+        }
+
+        .cloud-tag:hover {
+            transform: scale(1.05);
+            background: rgba(42, 111, 255, 0.2);
+        }
+
+        /* Sort Controls */
+        .sort-controls {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 10px;
+            padding: 1rem 1.5rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+        }
+
+        .sort-label {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .sort-select {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(42, 111, 255, 0.3);
+            border-radius: 4px;
+            color: var(--light);
+            padding: 0.5rem 1rem;
+            font-family: 'Source Code Pro', monospace;
+            border: none;
+        }
+
+        .sort-select:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        /* Export Controls */
+        .export-controls {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+            }
+            .search-layout {
+                grid-template-columns: 1fr;
+            }
+            .search-filters {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .platform-layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .results-grid {
+                grid-template-columns: 1fr;
+            }
+            .search-bar {
+                flex-direction: column;
+            }
+            .stats-item {
+                flex: 1;
+            }
+            .user-info {
+                display: none;
+            }
+            .nav-links {
+                display: none;
+            }
+            .page-actions {
+                flex-wrap: wrap;
+            }
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(42, 111, 255, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(42, 111, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(42, 111, 255, 0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-in {
+            animation: slideIn 0.5s ease-out;
+        }
+        
+        /* Debug styles (temporary) */
+        .debug-highlight {
+            outline: 3px solid red !important;
+            background: rgba(255, 0, 0, 0.1) !important;
+        }
+
+        .debug-found {
+            outline: 3px solid green !important;
+            background: rgba(0, 255, 0, 0.1) !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Matrix Background -->
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    <div class="grid-bg"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer"></div>
+
+    <!-- Session Warning Modal -->
+    <div class="session-warning" id="sessionWarning" style="display: none;">
+        <div class="session-warning-content">
+            <h3 style="color: var(--accent); margin-bottom: 1rem;">
+                <i class="fas fa-clock"></i> Session About to Expire
+            </h3>
+            <p style="color: var(--gray); margin-bottom: 1.5rem;">
+                Your session will expire due to inactivity. Do you want to stay logged in?
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <button class="btn btn-primary" id="extendSession">
+                    Stay Logged In
+                </button>
+                <button class="btn btn-outline" id="logoutNow">
+                    Logout Now
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- IOC Details Modal -->
+    <div class="modal" id="iocModal">
+        <div class="modal-content">
+            <button class="modal-close" id="modalClose">&times;</button>
+            <div id="modalContent">
+                <!-- Modal content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-shield-alt"></i>
+                CTI-Blockchain
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="platform.html">Platform</a></li>
+                <li><a href="threat-feed.html">Threat Feed</a></li>
+                <li><a href="ioc-submission.html">IOC Submission</a></li>
+                <li><a href="threatsearch.html" class="active">Threat Search</a></li>
+                <li><a href="blockchain-explorer.html">Blockchain</a></li>
+                <li><a href="analytics.html">Analytics</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <div class="dropdown">
+                    <div class="user-profile" id="userProfile">
+                        <div class="user-avatar" id="userAvatar">U</div>
+                        <div class="user-info">
+                            <div class="user-name" id="userName">User</div>
+                            <div class="user-role" id="userRole">Role</div>
+                        </div>
+                        <i class="fas fa-chevron-down" style="color: var(--gray); font-size: 0.8rem;"></i>
+                    </div>
+                    <div class="dropdown-menu" id="userDropdown">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="fas fa-user"></i> My Profile
+                        </a>
+                        <a href="settings.html" class="dropdown-item">
+                            <i class="fas fa-cog"></i> Settings
+                        </a>
+                        <div class="dropdown-divider"></div>
+                        <a href="#" class="dropdown-item" id="logoutBtn">
+                            <i class="fas fa-sign-out-alt"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Platform Layout -->
+    <div class="platform-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="platform.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="threat-feed.html"><i class="fas fa-broadcast-tower"></i> Threat Feed</a></li>
+                <li><a href="threatsearch.html" class="active"><i class="fas fa-search"></i> Threat Search</a></li>
+                <li><a href="ioc-submission.html"><i class="fas fa-share-alt"></i> IOC Submission</a></li>
+                <li><a href="blockchain-explorer.html"><i class="fas fa-project-diagram"></i> Blockchain Explorer</a></li>
+                <li><a href="analytics.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+
+            <div class="sidebar-section">
+                <h3>Saved Searches</h3>
+                <ul class="sidebar-menu" id="savedSearches">
+                    <li><a href="#" data-search-preset="recent"><i class="fas fa-history"></i> Recent Threats</a></li>
+                    <li><a href="#" data-search-preset="critical"><i class="fas fa-exclamation-triangle"></i> Critical Only</a></li>
+                    <li><a href="#" data-search-preset="ransomware"><i class="fas fa-lock"></i> Ransomware</a></li>
+                    <li><a href="#" data-search-preset="phishing"><i class="fas fa-fish"></i> Phishing</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Search Tips</h3>
+                <div style="padding: 0.5rem 1rem; font-size: 0.85rem; color: var(--gray); line-height: 1.5;">
+                    <p>• Use wildcards: *malicious*</p>
+                    <p>• Combine filters for precision</p>
+                    <p>• Save frequent searches</p>
+                    <p>• Export results for analysis</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <h1 class="page-title">Advanced Threat Search</h1>
+                <div class="page-actions">
+                    <button class="btn btn-warning" id="exportBtn">
+                        <i class="fas fa-download"></i> Export Results
+                    </button>
+                    <button class="btn btn-secondary" id="saveSearchBtn">
+                        <i class="fas fa-save"></i> Save Search
+                    </button>
+                    <button class="btn btn-outline" id="clearFiltersBtn">
+                        <i class="fas fa-filter-circle-xmark"></i> Clear Filters
+                    </button>
+                </div>
+            </div>
+
+            <div class="search-layout">
+                <!-- Search Filters Sidebar -->
+                <div class="search-filters">
+                    <div class="filters-header">
+                        <h3 class="filters-title">Search Filters</h3>
+                        <button class="btn btn-outline btn-small" id="toggleFilters">
+                            <i class="fas fa-sliders-h"></i>
+                        </button>
+                    </div>
+
+                    <div id="filtersContent">
+                        <!-- Search Query -->
+                        <div class="filter-group">
+                            <label class="filter-label">Search Query</label>
+                            <input type="text" class="filter-control" id="searchQuery" placeholder="Enter keywords, IP, domain, hash...">
+                        </div>
+
+                        <!-- IOC Type -->
+                        <div class="filter-group">
+                            <label class="filter-label">IOC Type</label>
+                            <select class="filter-control" id="iocType">
+                                <option value="">All Types</option>
+                                <option value="ip">IP Address</option>
+                                <option value="domain">Domain</option>
+                                <option value="url">URL</option>
+                                <option value="hash-md5">File Hash (MD5)</option>
+                                <option value="hash-sha256">File Hash (SHA-256)</option>
+                                <option value="email">Email Address</option>
+                            </select>
+                        </div>
+
+                        <!-- Threat Level -->
+                        <div class="filter-group">
+                            <label class="filter-label">Threat Level</label>
+                            <div class="tags-container" id="threatLevelTags">
+                                <span class="tag active" data-level="">All</span>
+                                <span class="tag" data-level="critical">Critical</span>
+                                <span class="tag" data-level="high">High</span>
+                                <span class="tag" data-level="medium">Medium</span>
+                                <span class="tag" data-level="low">Low</span>
+                            </div>
+                        </div>
+
+                        <!-- Confidence Range -->
+                        <div class="filter-group">
+                            <label class="filter-label">Confidence Level</label>
+                            <div class="range-slider">
+                                <input type="range" class="filter-control" id="confidenceMin" min="0" max="100" value="0">
+                                <span class="range-value" id="confidenceMinValue">0%</span>
+                                <span>to</span>
+                                <input type="range" class="filter-control" id="confidenceMax" min="0" max="100" value="100">
+                                <span class="range-value" id="confidenceMaxValue">100%</span>
+                            </div>
+                        </div>
+
+                        <!-- Date Range -->
+                        <div class="filter-group">
+                            <label class="filter-label">Date Range</label>
+                            <div class="date-range">
+                                <input type="date" class="filter-control" id="dateFrom" placeholder="From">
+                                <input type="date" class="filter-control" id="dateTo" placeholder="To">
+                            </div>
+                        </div>
+
+                        <!-- Popular Tags -->
+                        <div class="filter-group">
+                            <label class="filter-label">Popular Tags</label>
+                            <div class="tag-cloud" id="popularTags">
+                                <!-- Tags will be loaded dynamically -->
+                            </div>
+                        </div>
+
+                        <!-- Filter Actions -->
+                        <div class="filter-actions">
+                            <button class="btn btn-primary" id="applyFiltersBtn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <button class="btn btn-outline" id="resetFiltersBtn">
+                                <i class="fas fa-undo"></i> Reset
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Search Results Area -->
+                <div class="search-results">
+                    <!-- Search Bar -->
+                    <div class="search-bar-container">
+                        <div class="search-bar">
+                            <div style="position: relative; flex: 1;">
+                                <input type="text" 
+                                       class="search-input" 
+                                       id="mainSearchInput" 
+                                       placeholder="Search for threats (IP, domain, hash, or keywords)..."
+                                       autocomplete="off">
+                                <div class="search-suggestions" id="searchSuggestions"></div>
+                            </div>
+                            <button class="btn btn-primary" id="quickSearchBtn">
+                                <i class="fas fa-search"></i> Search
+                            </button>
+                            <button class="btn btn-outline" id="advancedSearchToggle">
+                                <i class="fas fa-sliders-h"></i> Advanced
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Sort and Export Controls -->
+                    <div class="sort-controls">
+                        <span class="sort-label">Sort by:</span>
+                        <select class="sort-select" id="sortBy">
+                            <option value="createdAt">Date Added</option>
+                            <option value="threatLevel">Threat Level</option>
+                            <option value="confidence">Confidence</option>
+                            <option value="verificationCount">Verifications</option>
+                        </select>
+                        <select class="sort-select" id="sortOrder">
+                            <option value="desc">Descending</option>
+                            <option value="asc">Ascending</option>
+                        </select>
+                        <div style="flex: 1;"></div>
+                        <div class="export-controls">
+                            <select class="sort-select" id="resultsPerPage">
+                                <option value="10">10 per page</option>
+                                <option value="20" selected>20 per page</option>
+                                <option value="50">50 per page</option>
+                                <option value="100">100 per page</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <!-- Results Statistics -->
+                    <div class="results-stats" id="resultsStats">
+                        <div class="stats-item">
+                            <div class="stats-value" id="totalResults">0</div>
+                            <div class="stats-label">Total Results</div>
+                        </div>
+                        <div class="stats-item">
+                            <div class="stats-value" id="avgConfidence">0%</div>
+                            <div class="stats-label">Avg Confidence</div>
+                        </div>
+                        <div class="stats-item">
+                            <div class="stats-value" id="criticalCount">0</div>
+                            <div class="stats-label">Critical</div>
+                        </div>
+                        <div class="stats-item">
+                            <div class="stats-value" id="uniqueTags">0</div>
+                            <div class="stats-label">Unique Tags</div>
+                        </div>
+                    </div>
+
+                    <!-- Results Grid -->
+                    <div class="results-grid" id="resultsGrid">
+                        <!-- Results will be loaded here -->
+                        <div class="empty-state" id="emptyState">
+                            <div class="empty-icon">
+                                <i class="fas fa-search"></i>
+                            </div>
+                            <h3 class="empty-title">No threats found</h3>
+                            <p class="empty-text">
+                                Try adjusting your search filters or enter different keywords to find threat indicators.
+                            </p>
+                            <button class="btn btn-primary" id="exploreThreatsBtn">
+                                <i class="fas fa-compass"></i> Explore Recent Threats
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Pagination -->
+                    <div class="pagination" id="pagination" style="display: none;">
+                        <button class="page-btn" id="firstPage">
+                            <i class="fas fa-angle-double-left"></i>
+                        </button>
+                        <button class="page-btn" id="prevPage">
+                            <i class="fas fa-angle-left"></i>
+                        </button>
+                        <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                        <button class="page-btn" id="nextPage">
+                            <i class="fas fa-angle-right"></i>
+                        </button>
+                        <button class="page-btn" id="lastPage">
+                            <i class="fas fa-angle-double-right"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:3000/api';
+        let currentSearchParams = {};
+        let currentPage = 1;
+        let totalPages = 1;
+        let searchTimeout = null;
+        let filterTimeout = null;
+        let sessionTimeout = null;
+
+        // Authentication Service (Fallback if auth-service.js not loaded)
+        const AuthService = {
+            tokenKey: 'authToken',
+            userKey: 'user',
+            refreshTokenKey: 'authRefreshToken',
+            tokenExpiryKey: 'authTokenExpiry',
+
+            getToken() {
+                return localStorage.getItem(this.tokenKey) || 
+                       sessionStorage.getItem(this.tokenKey) ||
+                       this.getCookie(this.tokenKey);
+            },
+
+            getRefreshToken() {
+                return localStorage.getItem(this.refreshTokenKey) || 
+                       sessionStorage.getItem(this.refreshTokenKey) ||
+                       this.getCookie(this.refreshTokenKey);
+            },
+
+            getUser() {
+                const userData = localStorage.getItem(this.userKey) || 
+                                sessionStorage.getItem(this.userKey);
+                return userData ? JSON.parse(userData) : null;
+            },
+
+            isAuthenticated() {
+                const token = this.getToken();
+                if (!token) return false;
+
+                const expiry = localStorage.getItem(this.tokenExpiryKey) || 
+                              sessionStorage.getItem(this.tokenExpiryKey);
+                if (expiry && new Date(expiry) < new Date()) {
+                    this.logout();
+                    return false;
+                }
+
+                return true;
+            },
+
+            hasPermission(permission) {
+                const user = this.getUser();
+                if (!user) return false;
+                
+                const permissions = {
+                    'admin': ['view_dashboard', 'view_threats', 'submit_iocs', 'edit_iocs', 
+                             'delete_iocs', 'view_analytics', 'export_data', 'manage_users',
+                             'view_blockchain', 'ai_analysis'],
+                    'analyst': ['view_dashboard', 'view_threats', 'submit_iocs', 'edit_iocs',
+                               'view_analytics', 'export_data', 'view_blockchain', 'ai_analysis'],
+                    'user': ['view_dashboard', 'view_threats', 'submit_iocs', 'view_blockchain'],
+                    'student': ['view_dashboard', 'view_threats', 'view_blockchain'],
+                    'assistant': ['view_dashboard', 'view_threats', 'submit_iocs', 'ai_analysis']
+                };
+                
+                return permissions[user.role]?.includes(permission) || false;
+            },
+
+            async getAuthHeaders() {
+                const token = this.getToken();
+                return {
+                    'Authorization': token ? `Bearer ${token}` : '',
+                    'Content-Type': 'application/json'
+                };
+            },
+
+            logout() {
+                localStorage.removeItem(this.tokenKey);
+                localStorage.removeItem(this.userKey);
+                localStorage.removeItem(this.refreshTokenKey);
+                localStorage.removeItem(this.tokenExpiryKey);
+                
+                sessionStorage.removeItem(this.tokenKey);
+                sessionStorage.removeItem(this.userKey);
+                sessionStorage.removeItem(this.refreshTokenKey);
+                sessionStorage.removeItem(this.tokenExpiryKey);
+                
+                this.deleteCookie(this.tokenKey);
+                this.deleteCookie(this.refreshTokenKey);
+                
+                window.location.href = 'login.html';
+            },
+
+            startSessionTimer() {
+                const inactivityTimeout = 8 * 60 * 60 * 1000;
+                
+                const resetTimer = () => {
+                    clearTimeout(sessionTimeout);
+                    sessionTimeout = setTimeout(() => {
+                        if (this.isAuthenticated()) {
+                            this.showSessionExpiryWarning();
+                        }
+                    }, inactivityTimeout);
+                };
+                
+                ['click', 'mousemove', 'keypress', 'scroll', 'touchstart'].forEach(event => {
+                    document.addEventListener(event, resetTimer, { passive: true });
+                });
+                
+                resetTimer();
+            },
+
+            showSessionExpiryWarning() {
+                if (!this.isAuthenticated()) return;
+                
+                const warning = document.getElementById('sessionWarning');
+                if (!warning) return;
+                
+                warning.style.display = 'flex';
+                
+                const extendBtn = document.getElementById('extendSession');
+                const logoutBtn = document.getElementById('logoutNow');
+                
+                if (extendBtn) {
+                    extendBtn.onclick = () => {
+                        warning.style.display = 'none';
+                        this.startSessionTimer();
+                    };
+                }
+                
+                if (logoutBtn) {
+                    logoutBtn.onclick = () => {
+                        this.logout();
+                    };
+                }
+                
+                setTimeout(() => {
+                    if (warning.style.display === 'flex') {
+                        this.logout();
+                    }
+                }, 60000);
+            },
+
+            getCookie(name) {
+                const nameEQ = name + "=";
+                const ca = document.cookie.split(';');
+                for(let i = 0; i < ca.length; i++) {
+                    let c = ca[i];
+                    while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                    if (c.indexOf(nameEQ) === 0) return c.substring(nameEQ.length, c.length);
+                }
+                return null;
+            },
+
+            deleteCookie(name) {
+                document.cookie = `${name}=; Max-Age=-99999999; path=/;`;
+            }
+        };
+
+        // Use global auth service if available, otherwise use fallback
+        const auth = window.authService || AuthService;
+
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 5000) {
+            const toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                // Create toast container if it doesn't exist
+                const container = document.createElement('div');
+                container.id = 'toastContainer';
+                document.body.appendChild(container);
+            }
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            document.getElementById('toastContainer').appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        // Check authentication
+        function checkAuthentication() {
+            console.log('Checking authentication...');
+            
+            if (!auth.isAuthenticated()) {
+                showToast('Please login to access threat intelligence', 'error');
+                setTimeout(() => {
+                    const currentPath = window.location.pathname + window.location.search;
+                    window.location.href = `login.html?redirect=${encodeURIComponent(currentPath)}`;
+                }, 1500);
+                return false;
+            }
+            
+            if (!auth.hasPermission('view_threats')) {
+                showToast('You do not have permission to view threats', 'error');
+                setTimeout(() => {
+                    window.location.href = 'platform.html';
+                }, 1500);
+                return false;
+            }
+            
+            updateUserUI();
+            updateSidebarPermissions();
+            auth.startSessionTimer();
+            
+            return true;
+        }
+
+        // Update UI with user information
+        function updateUserUI() {
+            const user = auth.getUser();
+            if (!user) return;
+            
+            const avatar = document.getElementById('userAvatar');
+            const name = document.getElementById('userName');
+            const role = document.getElementById('userRole');
+            
+            if (avatar) {
+                avatar.textContent = user.name ? user.name.charAt(0).toUpperCase() : user.email.charAt(0).toUpperCase();
+            }
+            
+            if (name) {
+                name.textContent = user.name || user.email.split('@')[0];
+            }
+            
+            if (role) {
+                role.textContent = user.role;
+            }
+        }
+
+        // Update sidebar based on permissions
+        function updateSidebarPermissions() {
+            const user = auth.getUser();
+            if (!user) return;
+            
+            const menuItems = {
+                'Dashboard': auth.hasPermission('view_dashboard'),
+                'Threat Feed': auth.hasPermission('view_threats'),
+                'Threat Search': auth.hasPermission('view_threats'),
+                'IOC Submission': auth.hasPermission('submit_iocs'),
+                'Blockchain Explorer': auth.hasPermission('view_blockchain'),
+                'Analytics': auth.hasPermission('view_analytics'),
+                'Settings': user.role === 'admin' || user.role === 'analyst'
+            };
+            
+            document.querySelectorAll('.sidebar-menu a').forEach(link => {
+                const linkText = link.textContent.trim();
+                Object.keys(menuItems).forEach(key => {
+                    if (linkText.includes(key) && !menuItems[key]) {
+                        link.parentElement.style.display = 'none';
+                    }
+                });
+            });
+            
+            // Update export button visibility
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn && !auth.hasPermission('export_data')) {
+                exportBtn.style.display = 'none';
+            }
+        }
+
+        // Enhanced API request function with auth handling
+        async function makeAuthenticatedRequest(url, options = {}) {
+            try {
+                const authHeaders = await auth.getAuthHeaders();
+                
+                const response = await fetch(url, {
+                    ...options,
+                    headers: {
+                        ...authHeaders,
+                        ...options.headers
+                    }
+                });
+                
+                if (response.status === 401) {
+                    showToast('Session expired. Please login again.', 'error');
+                    setTimeout(() => auth.logout(), 2000);
+                    throw new Error('Session expired');
+                }
+                
+                if (response.status === 403) {
+                    showToast('You do not have permission to perform this action', 'error');
+                    throw new Error('FORBIDDEN');
+                }
+                
+                return response;
+                
+            } catch (error) {
+                console.error('API request error:', error);
+                
+                if (error.message.includes('Session expired')) {
+                    showToast('Session expired. Redirecting to login...', 'error');
+                    setTimeout(() => auth.logout(), 2000);
+                }
+                
+                throw error;
+            }
+        }
+
+        // Initialize search filters from URL or localStorage
+        function initializeFilters() {
+            console.log('Initializing filters...');
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            const savedFilters = localStorage.getItem('threatSearchFilters');
+            
+            currentSearchParams = {
+                page: 1,
+                limit: 20,
+                sortBy: 'createdAt',
+                sortOrder: 'desc'
+            };
+            
+            if (urlParams.toString()) {
+                urlParams.forEach((value, key) => {
+                    if (value) currentSearchParams[key] = value;
+                });
+            } else if (savedFilters) {
+                try {
+                    const parsedFilters = JSON.parse(savedFilters);
+                    Object.assign(currentSearchParams, parsedFilters);
+                } catch (e) {
+                    console.error('Error parsing saved filters:', e);
+                }
+            }
+            
+            updateFilterUI();
+            loadPopularTags();
+            performSearch();
+        }
+
+        // Update filter UI with current params
+        function updateFilterUI() {
+            if (!currentSearchParams) return;
+            
+            const searchQuery = document.getElementById('searchQuery');
+            const mainSearchInput = document.getElementById('mainSearchInput');
+            const iocType = document.getElementById('iocType');
+            const sortBy = document.getElementById('sortBy');
+            const sortOrder = document.getElementById('sortOrder');
+            const resultsPerPage = document.getElementById('resultsPerPage');
+            
+            if (searchQuery && currentSearchParams.query) {
+                searchQuery.value = currentSearchParams.query;
+            }
+            
+            if (mainSearchInput && currentSearchParams.query) {
+                mainSearchInput.value = currentSearchParams.query;
+            }
+            
+            if (iocType && currentSearchParams.type) {
+                iocType.value = currentSearchParams.type;
+            }
+            
+            if (currentSearchParams.threatLevel) {
+                document.querySelectorAll('#threatLevelTags .tag').forEach(tag => {
+                    tag.classList.remove('active');
+                    if (tag.dataset.level === currentSearchParams.threatLevel) {
+                        tag.classList.add('active');
+                    }
+                });
+            }
+            
+            if (sortBy && currentSearchParams.sortBy) {
+                sortBy.value = currentSearchParams.sortBy;
+            }
+            
+            if (sortOrder && currentSearchParams.sortOrder) {
+                sortOrder.value = currentSearchParams.sortOrder;
+            }
+            
+            if (resultsPerPage && currentSearchParams.limit) {
+                resultsPerPage.value = currentSearchParams.limit;
+            }
+        }
+
+        // Get current filters from UI
+        function getCurrentFilters() {
+            const searchQuery = document.getElementById('searchQuery');
+            const iocType = document.getElementById('iocType');
+            const sortBy = document.getElementById('sortBy');
+            const sortOrder = document.getElementById('sortOrder');
+            const resultsPerPage = document.getElementById('resultsPerPage');
+            
+            if (!searchQuery || !iocType || !sortBy || !sortOrder || !resultsPerPage) {
+                console.warn('Some filter elements not found, returning current params');
+                return currentSearchParams;
+            }
+            
+            const activeThreatTag = document.querySelector('#threatLevelTags .tag.active');
+            
+            const filters = {
+                query: searchQuery.value.trim() || undefined,
+                type: iocType.value || undefined,
+                threatLevel: activeThreatTag?.dataset.level || undefined,
+                sortBy: sortBy.value,
+                sortOrder: sortOrder.value,
+                page: currentPage,
+                limit: parseInt(resultsPerPage.value)
+            };
+            
+            // Remove undefined values
+            Object.keys(filters).forEach(key => {
+                if (filters[key] === undefined) {
+                    delete filters[key];
+                }
+            });
+            
+            return filters;
+        }
+
+        // Perform search with current filters
+        async function performSearch() {
+            console.log('=== PERFORM SEARCH STARTED ===');
+            
+            if (!auth.isAuthenticated() || !auth.hasPermission('view_threats')) {
+                showToast('Authentication required to search threats', 'error');
+                return;
+            }
+            
+            const filters = getCurrentFilters();
+            console.log('Current filters:', filters);
+            
+            currentSearchParams = filters;
+            
+            showLoading();
+            
+            try {
+                // Build query string
+                const queryParams = new URLSearchParams();
+                Object.entries(filters).forEach(([key, value]) => {
+                    if (value !== undefined && value !== null && value !== '') {
+                        queryParams.append(key, value.toString());
+                    }
+                });
+                
+                const url = `${API_BASE_URL}/search/advanced?${queryParams.toString()}`;
+                console.log('Fetching from URL:', url);
+                
+                const response = await makeAuthenticatedRequest(url);
+                console.log('Response status:', response.status);
+                
+                if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('Search failed:', response.status, errorText);
+                    throw new Error(`Search failed: ${response.status}`);
+                }
+                
+                const result = await response.json();
+                console.log('Full response result:', result);
+                
+                if (result.success) {
+                    console.log('Search successful, displaying results');
+                    displaySearchResults(result);
+                } else {
+                    console.warn('Search returned success: false', result);
+                    
+                    // Try to display whatever data we have
+                    if (result.data) {
+                        console.log('Found data in result.data, displaying anyway');
+                        displaySearchResults(result);
+                    } else if (result.iocs) {
+                        console.log('Found iocs in result.iocs, displaying anyway');
+                        displaySearchResults({ iocs: result.iocs });
+                    } else {
+                        console.log('No data found in response');
+                        showToast('No threats found matching your criteria', 'info');
+                        displayEmptyState();
+                    }
+                }
+                
+            } catch (error) {
+                console.error('Search error:', error);
+                showToast(`Search failed: ${error.message}`, 'error');
+                displayEmptyState();
+            }
+        }
+
+        // Display search results
+        function displaySearchResults(data) {
+            console.log('displaySearchResults called with data:', data);
+            
+            // Get DOM elements
+            const resultsGrid = document.getElementById('resultsGrid');
+            const emptyState = document.getElementById('emptyState');
+            const pagination = document.getElementById('pagination');
+            
+            // Debug: Check if elements exist
+            console.log('DOM Elements:', {
+                resultsGrid: resultsGrid ? 'FOUND' : 'NOT FOUND',
+                emptyState: emptyState ? 'FOUND' : 'NOT FOUND',
+                pagination: pagination ? 'FOUND' : 'NOT FOUND'
+            });
+            
+            if (!resultsGrid || !emptyState || !pagination) {
+                console.error('Required DOM elements not found!');
+                
+                // Try emergency element creation
+                const elements = createMissingElements();
+                if (elements.resultsGrid && elements.emptyState && elements.pagination) {
+                    console.log('Emergency elements created, retrying display...');
+                    // Use the newly created elements
+                    displaySearchResults(data);
+                }
+                return;
+            }
+            
+            // Clear previous results
+            resultsGrid.innerHTML = '';
+            
+            // Check if we have data
+            if (!data) {
+                console.error('No data provided to displaySearchResults');
+                emptyState.style.display = 'block';
+                pagination.style.display = 'none';
+                return;
+            }
+            
+            // Extract iocs from response
+            let iocs = [];
+            if (data.data && data.data.iocs) {
+                iocs = data.data.iocs;
+                console.log('Found iocs in data.data.iocs:', iocs.length);
+            } else if (data.iocs) {
+                iocs = data.iocs;
+                console.log('Found iocs in data.iocs:', iocs.length);
+            } else if (Array.isArray(data)) {
+                iocs = data;
+                console.log('Data is array of iocs:', iocs.length);
+            }
+            
+            console.log('Total iocs to display:', iocs.length);
+            
+            if (iocs.length === 0) {
+                console.log('No iocs found, showing empty state');
+                emptyState.style.display = 'block';
+                pagination.style.display = 'none';
+                
+                // Update statistics with zero values
+                updateStatistics({
+                    total: 0,
+                    avgConfidence: 0,
+                    threatLevels: {},
+                    types: {}
+                });
+                return;
+            }
+            
+            console.log('Showing', iocs.length, 'iocs');
+            emptyState.style.display = 'none';
+            
+            // Display each IOC
+            iocs.forEach((ioc, index) => {
+                const card = createIOCCard(ioc);
+                if (card) {
+                    // Add slight delay for animation effect
+                    card.style.animationDelay = `${index * 0.05}s`;
+                    resultsGrid.appendChild(card);
+                }
+            });
+            
+            // Update statistics
+            const stats = data.stats || (data.data && data.data.stats) || {
+                total: iocs.length,
+                avgConfidence: 50,
+                threatLevels: {},
+                types: {}
+            };
+            console.log('Updating stats:', stats);
+            updateStatistics(stats);
+            
+            // Update pagination
+            const paginationData = data.pagination || (data.data && data.data.pagination) || {
+                page: currentPage,
+                limit: parseInt(document.getElementById('resultsPerPage')?.value || 20),
+                total: iocs.length,
+                totalPages: 1,
+                hasNext: false,
+                hasPrev: false
+            };
+            console.log('Updating pagination:', paginationData);
+            updatePagination(paginationData);
+            
+            pagination.style.display = 'flex';
+            
+            // Force a reflow to trigger animations
+            setTimeout(() => {
+                resultsGrid.style.display = 'none';
+                resultsGrid.offsetHeight; // Trigger reflow
+                resultsGrid.style.display = 'grid';
+            }, 10);
+        }
+
+        // Create IOC card HTML
+        function createIOCCard(ioc) {
+            console.log('Creating card for IOC:', ioc);
+            
+            if (!ioc) {
+                console.error('No IOC data provided to createIOCCard');
+                return null;
+            }
+            
+            try {
+                const card = document.createElement('div');
+                card.className = 'ioc-card slide-in';
+                card.dataset.id = ioc._id || ioc.id || 'unknown';
+                
+                // Format dates safely
+                let createdAt = 'Unknown';
+                try {
+                    const date = ioc.createdAt ? new Date(ioc.createdAt) : new Date();
+                    createdAt = date.toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                    });
+                } catch (e) {
+                    console.warn('Error formatting date:', e);
+                }
+                
+                const confidenceWidth = Math.min(Math.max(ioc.confidence || 0, 0), 100) + '%';
+                const threatClass = `threat-${ioc.threatLevel || 'medium'}`;
+                const typeIcon = getTypeIcon(ioc.type);
+                const typeLabel = getTypeLabel(ioc.type);
+                
+                // Truncate description if too long
+                let description = '';
+                if (ioc.description) {
+                    description = ioc.description.length > 150 
+                        ? ioc.description.substring(0, 150) + '...' 
+                        : ioc.description;
+                }
+                
+                // Create tags HTML
+                let tagsHTML = '<span class="ioc-tag">No tags</span>';
+                if (ioc.tags && Array.isArray(ioc.tags) && ioc.tags.length > 0) {
+                    tagsHTML = ioc.tags
+                        .slice(0, 5) // Show max 5 tags
+                        .map(tag => `<span class="ioc-tag">${escapeHTML(tag)}</span>`)
+                        .join('');
+                }
+                
+                // Check if user can analyze this IOC
+                const canAnalyze = auth.hasPermission('ai_analysis');
+                
+                // Build the card HTML
+                card.innerHTML = `
+                    <div class="ioc-header">
+                        <div class="ioc-type">
+                            <div class="type-icon">
+                                <i class="${typeIcon}"></i>
+                            </div>
+                            <span class="type-label">${typeLabel}</span>
+                        </div>
+                        <div class="ioc-threat">
+                            <span class="threat-badge ${threatClass}">
+                                ${(ioc.threatLevel || 'medium').toUpperCase()}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="ioc-content">
+                        <div class="ioc-value" title="${escapeHTML(ioc.value || 'N/A')}">
+                            ${escapeHTML(ioc.value || 'N/A')}
+                        </div>
+                        ${description ? `<div class="ioc-description">${escapeHTML(description)}</div>` : ''}
+                        <div class="ioc-meta">
+                            <div class="confidence-meter">
+                                <div class="confidence-bar">
+                                    <div class="confidence-fill" style="width: ${confidenceWidth}"></div>
+                                </div>
+                                <span class="confidence-text">${ioc.confidence || 0}%</span>
+                            </div>
+                            <div class="verification-count">
+                                <i class="fas fa-check-circle" style="color: var(--secondary);"></i>
+                                ${ioc.verificationCount || 0} verifications
+                            </div>
+                        </div>
+                        <div class="ioc-tags">
+                            ${tagsHTML}
+                        </div>
+                    </div>
+                    <div class="ioc-footer">
+                        <div class="ioc-date">
+                            <i class="far fa-calendar"></i> ${createdAt}
+                            ${ioc.blockchainTxHash ? '<span class="ai-badge"><i class="fas fa-link"></i> On Blockchain</span>' : ''}
+                        </div>
+                        <div class="ioc-actions">
+                            <button class="btn btn-outline btn-small view-details" title="View Details">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                            ${canAnalyze ? `
+                            <button class="btn btn-outline btn-small analyze-ioc" title="AI Analysis">
+                                <i class="fas fa-robot"></i>
+                            </button>
+                            ` : ''}
+                            <button class="btn btn-outline btn-small copy-ioc" title="Copy IOC">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                
+                // Add event listeners safely
+                const viewBtn = card.querySelector('.view-details');
+                const copyBtn = card.querySelector('.copy-ioc');
+                
+                if (viewBtn) {
+                    viewBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        const iocId = ioc._id || ioc.id;
+                        if (iocId) {
+                            showIocDetails(iocId);
+                        } else {
+                            showToast('Cannot view details: IOC ID not found', 'error');
+                        }
+                    });
+                }
+                
+                if (canAnalyze) {
+                    const analyzeBtn = card.querySelector('.analyze-ioc');
+                    if (analyzeBtn) {
+                        analyzeBtn.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            analyzeIOC(ioc);
+                        });
+                    }
+                }
+                
+                if (copyBtn) {
+                    copyBtn.addEventListener('click', (e) => {
+                        e.stopPropagation();
+                        copyIOCValue(ioc.value);
+                    });
+                }
+                
+                // Add click handler to entire card
+                card.addEventListener('click', (e) => {
+                    if (!e.target.closest('.ioc-actions')) {
+                        const iocId = ioc._id || ioc.id;
+                        if (iocId) {
+                            showIocDetails(iocId);
+                        }
+                    }
+                });
+                
+                return card;
+                
+            } catch (error) {
+                console.error('Error creating IOC card:', error);
+                console.error('Problematic IOC data:', ioc);
+                return null;
+            }
+        }
+
+        // Get type icon
+        function getTypeIcon(type) {
+            const icons = {
+                'ip': 'fas fa-network-wired',
+                'domain': 'fas fa-globe',
+                'url': 'fas fa-link',
+                'hash-md5': 'fas fa-fingerprint',
+                'hash-sha256': 'fas fa-fingerprint',
+                'email': 'fas fa-envelope'
+            };
+            return icons[type] || 'fas fa-question-circle';
+        }
+
+        // Get type label
+        function getTypeLabel(type) {
+            const labels = {
+                'ip': 'IP Address',
+                'domain': 'Domain',
+                'url': 'URL',
+                'hash-md5': 'File Hash (MD5)',
+                'hash-sha256': 'File Hash (SHA-256)',
+                'email': 'Email Address'
+            };
+            return labels[type] || 'Unknown Type';
+        }
+
+        // Update statistics display
+        function updateStatistics(stats) {
+            const totalResults = document.getElementById('totalResults');
+            const avgConfidence = document.getElementById('avgConfidence');
+            const criticalCount = document.getElementById('criticalCount');
+            const uniqueTags = document.getElementById('uniqueTags');
+            
+            if (totalResults) totalResults.textContent = stats.total || 0;
+            if (avgConfidence) avgConfidence.textContent = `${stats.avgConfidence || 0}%`;
+            
+            if (criticalCount) {
+                const critical = stats.threatLevels?.critical || 0;
+                criticalCount.textContent = critical;
+            }
+            
+            if (uniqueTags) {
+                const uniqueTagsCount = Object.keys(stats.types || {}).length;
+                uniqueTags.textContent = uniqueTagsCount;
+            }
+        }
+
+        // Update pagination
+        function updatePagination(pagination) {
+            if (!pagination) return;
+            
+            currentPage = pagination.page || 1;
+            totalPages = pagination.totalPages || 1;
+            
+            const pageInfo = document.getElementById('pageInfo');
+            const firstPage = document.getElementById('firstPage');
+            const prevPage = document.getElementById('prevPage');
+            const nextPage = document.getElementById('nextPage');
+            const lastPage = document.getElementById('lastPage');
+            
+            if (pageInfo) {
+                pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+            }
+            
+            [firstPage, prevPage, nextPage, lastPage].forEach(btn => {
+                if (!btn) return;
+                
+                if (btn.id === 'firstPage' || btn.id === 'prevPage') {
+                    btn.disabled = currentPage === 1;
+                } else if (btn.id === 'nextPage' || btn.id === 'lastPage') {
+                    btn.disabled = currentPage === totalPages;
+                }
+                
+                if (btn.disabled) {
+                    btn.classList.add('disabled');
+                } else {
+                    btn.classList.remove('disabled');
+                }
+            });
+        }
+
+        // Show loading state
+        function showLoading() {
+            const resultsGrid = document.getElementById('resultsGrid');
+            if (!resultsGrid) {
+                console.error('resultsGrid not found for loading state');
+                return;
+            }
+            
+            resultsGrid.innerHTML = `
+                <div class="empty-state" style="display: block;">
+                    <div class="spinner" style="width: 40px; height: 40px; border-width: 4px; margin-bottom: 1rem;"></div>
+                    <h3 class="empty-title">Searching threats...</h3>
+                    <p class="empty-text">Please wait while we search our threat intelligence database.</p>
+                </div>
+            `;
+        }
+
+        // Display empty state
+        function displayEmptyState() {
+            const resultsGrid = document.getElementById('resultsGrid');
+            if (!resultsGrid) {
+                console.error('resultsGrid not found for empty state');
+                return;
+            }
+            
+            resultsGrid.innerHTML = `
+                <div class="empty-state" style="display: block;">
+                    <div class="empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="empty-title">No threats found</h3>
+                    <p class="empty-text">
+                        Try adjusting your search filters or enter different keywords to find threat indicators.
+                    </p>
+                    <button class="btn btn-primary" id="exploreThreatsBtn">
+                        <i class="fas fa-compass"></i> Explore Recent Threats
+                    </button>
+                </div>
+            `;
+            
+            const exploreBtn = document.getElementById('exploreThreatsBtn');
+            if (exploreBtn) {
+                exploreBtn.addEventListener('click', () => {
+                    clearFilters();
+                    performSearch();
+                });
+            }
+        }
+
+        // Load popular tags
+        async function loadPopularTags() {
+            try {
+                const response = await makeAuthenticatedRequest(`${API_BASE_URL}/tags/popular`);
+                
+                if (!response.ok) {
+                    // If tags endpoint doesn't exist, use fallback
+                    console.log('Tags endpoint not available, using fallback');
+                    return;
+                }
+                
+                const result = await response.json();
+                
+                if (result.success && result.data) {
+                    const tagsContainer = document.getElementById('popularTags');
+                    if (!tagsContainer) return;
+                    
+                    tagsContainer.innerHTML = '';
+                    
+                    result.data.forEach(tag => {
+                        const button = document.createElement('button');
+                        button.className = 'cloud-tag';
+                        button.textContent = tag.name || tag.tag;
+                        button.title = `Used ${tag.count || 1} times`;
+                        
+                        button.addEventListener('click', () => {
+                            const searchQuery = document.getElementById('searchQuery');
+                            const mainSearchInput = document.getElementById('mainSearchInput');
+                            if (searchQuery) searchQuery.value = tag.name || tag.tag;
+                            if (mainSearchInput) mainSearchInput.value = tag.name || tag.tag;
+                            performSearch();
+                        });
+                        
+                        tagsContainer.appendChild(button);
+                    });
+                }
+            } catch (error) {
+                console.error('Error loading tags:', error);
+                // Don't show error for tags, just continue
+            }
+        }
+
+        // Copy IOC value to clipboard
+        function copyIOCValue(value) {
+            if (!value) {
+                showToast('No IOC value to copy', 'error');
+                return;
+            }
+            
+            navigator.clipboard.writeText(value).then(() => {
+                showToast('IOC copied to clipboard', 'success');
+            }).catch(err => {
+                console.error('Failed to copy:', err);
+                showToast('Failed to copy IOC', 'error');
+            });
+        }
+
+        // Clear all filters
+        function clearFilters() {
+            const searchQuery = document.getElementById('searchQuery');
+            const mainSearchInput = document.getElementById('mainSearchInput');
+            const iocType = document.getElementById('iocType');
+            
+            if (searchQuery) searchQuery.value = '';
+            if (mainSearchInput) mainSearchInput.value = '';
+            if (iocType) iocType.value = '';
+            
+            document.querySelectorAll('#threatLevelTags .tag').forEach(tag => {
+                tag.classList.remove('active');
+            });
+            const allTag = document.querySelector('#threatLevelTags .tag[data-level=""]');
+            if (allTag) allTag.classList.add('active');
+            
+            currentPage = 1;
+            currentSearchParams = {};
+            localStorage.removeItem('threatSearchFilters');
+            
+            performSearch();
+        }
+
+        // Escape HTML to prevent XSS
+        function escapeHTML(text) {
+            if (!text) return '';
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // Emergency fix: Create missing elements
+        function createMissingElements() {
+            console.log('Creating missing elements...');
+            
+            // Check and create resultsGrid
+            let resultsGrid = document.getElementById('resultsGrid');
+            if (!resultsGrid) {
+                console.log('Creating missing resultsGrid');
+                resultsGrid = document.createElement('div');
+                resultsGrid.id = 'resultsGrid';
+                resultsGrid.className = 'results-grid';
+                
+                // Try to find where it should go
+                const searchResults = document.querySelector('.search-results');
+                if (searchResults) {
+                    searchResults.appendChild(resultsGrid);
+                    console.log('Added resultsGrid to .search-results');
+                } else {
+                    document.body.appendChild(resultsGrid);
+                    console.log('Added resultsGrid to body');
+                }
+            }
+            
+            // Check and create emptyState
+            let emptyState = document.getElementById('emptyState');
+            if (!emptyState) {
+                console.log('Creating missing emptyState');
+                emptyState = document.createElement('div');
+                emptyState.id = 'emptyState';
+                emptyState.className = 'empty-state';
+                emptyState.innerHTML = `
+                    <div class="empty-icon">
+                        <i class="fas fa-search"></i>
+                    </div>
+                    <h3 class="empty-title">No threats found</h3>
+                    <p class="empty-text">
+                        Try adjusting your search filters or enter different keywords to find threat indicators.
+                    </p>
+                    <button class="btn btn-primary" id="exploreThreatsBtn">
+                        <i class="fas fa-compass"></i> Explore Recent Threats
+                    </button>
+                `;
+                resultsGrid.appendChild(emptyState);
+            }
+            
+            // Check and create pagination
+            let pagination = document.getElementById('pagination');
+            if (!pagination) {
+                console.log('Creating missing pagination');
+                pagination = document.createElement('div');
+                pagination.id = 'pagination';
+                pagination.className = 'pagination';
+                pagination.style.display = 'none';
+                pagination.innerHTML = `
+                    <button class="page-btn" id="firstPage">
+                        <i class="fas fa-angle-double-left"></i>
+                    </button>
+                    <button class="page-btn" id="prevPage">
+                        <i class="fas fa-angle-left"></i>
+                    </button>
+                    <span class="page-info" id="pageInfo">Page 1 of 1</span>
+                    <button class="page-btn" id="nextPage">
+                        <i class="fas fa-angle-right"></i>
+                    </button>
+                    <button class="page-btn" id="lastPage">
+                        <i class="fas fa-angle-double-right"></i>
+                    </button>
+                `;
+                
+                // Find where to add it
+                const searchResults = document.querySelector('.search-results');
+                if (searchResults) {
+                    searchResults.appendChild(pagination);
+                } else if (resultsGrid.parentElement) {
+                    resultsGrid.parentElement.appendChild(pagination);
+                }
+            }
+            
+            console.log('Emergency element creation complete');
+            return { resultsGrid, emptyState, pagination };
+        }
+
+        // Initialize when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('DOM Content Loaded - Initializing Threat Search');
+            
+            // First, ensure all required elements exist
+            createMissingElements();
+            
+            // Check authentication first
+            if (!checkAuthentication()) {
+                console.log('Authentication failed or pending');
+                return;
+            }
+            
+            console.log('Authentication successful, initializing search');
+            
+            // Initialize filters and perform initial search
+            initializeFilters();
+            
+            // Set up event listeners
+            setupEventListeners();
+            
+            console.log('Threat Search initialized successfully');
+        });
+
+        function setupEventListeners() {
+            console.log('Setting up event listeners...');
+            
+            // Threat level tags
+            const threatLevelTags = document.getElementById('threatLevelTags');
+            if (threatLevelTags) {
+                threatLevelTags.addEventListener('click', (e) => {
+                    if (e.target.classList.contains('tag')) {
+                        document.querySelectorAll('#threatLevelTags .tag').forEach(t => t.classList.remove('active'));
+                        e.target.classList.add('active');
+                        clearTimeout(filterTimeout);
+                        filterTimeout = setTimeout(performSearch, 300);
+                    }
+                });
+            }
+            
+            // Search query input
+            const searchQuery = document.getElementById('searchQuery');
+            if (searchQuery) {
+                searchQuery.addEventListener('input', () => {
+                    clearTimeout(searchTimeout);
+                    searchTimeout = setTimeout(performSearch, 500);
+                });
+            }
+            
+            // Apply filters button
+            const applyFiltersBtn = document.getElementById('applyFiltersBtn');
+            if (applyFiltersBtn) {
+                applyFiltersBtn.addEventListener('click', performSearch);
+            }
+            
+            // Reset filters button
+            const resetFiltersBtn = document.getElementById('resetFiltersBtn');
+            if (resetFiltersBtn) {
+                resetFiltersBtn.addEventListener('click', clearFilters);
+            }
+            
+            // Clear all filters button
+            const clearFiltersBtn = document.getElementById('clearFiltersBtn');
+            if (clearFiltersBtn) {
+                clearFiltersBtn.addEventListener('click', clearFilters);
+            }
+            
+            // Export button
+            const exportBtn = document.getElementById('exportBtn');
+            if (exportBtn) {
+                exportBtn.addEventListener('click', () => {
+                    showToast('Export feature coming soon!', 'info');
+                });
+            }
+            
+            // Save search button
+            const saveSearchBtn = document.getElementById('saveSearchBtn');
+            if (saveSearchBtn) {
+                saveSearchBtn.addEventListener('click', () => {
+                    showToast('Save search feature coming soon!', 'info');
+                });
+            }
+            
+            // Sort controls
+            const sortBy = document.getElementById('sortBy');
+            const sortOrder = document.getElementById('sortOrder');
+            const resultsPerPage = document.getElementById('resultsPerPage');
+            
+            if (sortBy) sortBy.addEventListener('change', performSearch);
+            if (sortOrder) sortOrder.addEventListener('change', performSearch);
+            if (resultsPerPage) resultsPerPage.addEventListener('change', performSearch);
+            
+            // Pagination
+            const firstPage = document.getElementById('firstPage');
+            const prevPage = document.getElementById('prevPage');
+            const nextPage = document.getElementById('nextPage');
+            const lastPage = document.getElementById('lastPage');
+            
+            if (firstPage) firstPage.addEventListener('click', () => {
+                currentPage = 1;
+                performSearch();
+            });
+            
+            if (prevPage) prevPage.addEventListener('click', () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    performSearch();
+                }
+            });
+            
+            if (nextPage) nextPage.addEventListener('click', () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    performSearch();
+                }
+            });
+            
+            if (lastPage) lastPage.addEventListener('click', () => {
+                currentPage = totalPages;
+                performSearch();
+            });
+            
+            // User dropdown
+            const userProfile = document.getElementById('userProfile');
+            const userDropdown = document.getElementById('userDropdown');
+            
+            if (userProfile && userDropdown) {
+                userProfile.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    userDropdown.classList.toggle('show');
+                });
+                
+                // Close dropdown when clicking outside
+                document.addEventListener('click', () => {
+                    userDropdown.classList.remove('show');
+                });
+            }
+            
+            // Logout button
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    auth.logout();
+                });
+            }
+            
+            // Save filters on change
+            const filterElements = [
+                'searchQuery', 'iocType', 'sortBy', 'sortOrder', 'resultsPerPage'
+            ];
+            
+            filterElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    element.addEventListener('change', () => {
+                        const filters = getCurrentFilters();
+                        localStorage.setItem('threatSearchFilters', JSON.stringify(filters));
+                    });
+                }
+            });
+            
+            console.log('Event listeners set up successfully');
+        }
+
+        // Debug helper functions
+        window.debugSearch = {
+            testSearch: async function(query = '') {
+                const searchInput = document.getElementById('searchQuery');
+                const mainSearchInput = document.getElementById('mainSearchInput');
+                if (searchInput) searchInput.value = query;
+                if (mainSearchInput) mainSearchInput.value = query;
+                await performSearch();
+            },
+            
+            clearAll: function() {
+                clearFilters();
+            },
+            
+            testAPI: async function(endpoint = '/search/advanced?limit=10') {
+                try {
+                    const response = await makeAuthenticatedRequest(`${API_BASE_URL}${endpoint}`);
+                    const result = await response.json();
+                    console.log('API Response:', result);
+                    return result;
+                } catch (error) {
+                    console.error('API test failed:', error);
+                }
+            },
+            
+            showState: function() {
+                console.log('Current search params:', currentSearchParams);
+                console.log('Current page:', currentPage);
+                console.log('Total pages:', totalPages);
+                console.log('User:', auth.getUser());
+                console.log('Authenticated:', auth.isAuthenticated());
+            }
+        };
+
+        // Make debug functions available globally
+        console.log('Debug functions available: window.debugSearch.testSearch(), .clearAll(), .testAPI(), .showState()');
+        console.log('Threat Search page loaded successfully!');
+    </script>
+</body>
+</html>

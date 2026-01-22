@@ -1,0 +1,2048 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="icon" type="image/jpg" href="../image.png">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SOC Agent | CTI-Blockchain | AI Security Assistant</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800&family=Source+Code+Pro:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2A6FFF;
+            --secondary: #00D4AA;
+            --accent: #FF6B6B;
+            --dark: #0A0F1C;
+            --darker: #050811;
+            --light: #F8FAFC;
+            --gray: #64748B;
+            --gold: #FFD166;
+            --purple: #9D4EDD;
+            --neon-blue: #00F5FF;
+            --neon-green: #39FF14;
+            --agent-blue: #00B4D8;
+            --agent-purple: #7209B7;
+            --transition: all 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Source Code Pro', monospace;
+            line-height: 1.6;
+            color: var(--light);
+            background: var(--dark);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        .matrix-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            opacity: 0.03;
+        }
+
+        .grid-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(42, 111, 255, 0.1) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(42, 111, 255, 0.1) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: -1;
+            opacity: 0.2;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header & Navigation */
+        header {
+            background: rgba(10, 15, 28, 0.9);
+            backdrop-filter: blur(10px);
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            border-bottom: 1px solid rgba(42, 111, 255, 0.2);
+        }
+
+        .header-container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.2rem 0;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--light);
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .logo i {
+            color: var(--primary);
+            margin-right: 0.5rem;
+            text-shadow: 0 0 10px var(--primary);
+            animation: pulse 2s infinite;
+        }
+
+        .nav-links {
+            display: flex;
+            list-style: none;
+        }
+
+        .nav-links li {
+            margin-left: 2rem;
+            position: relative;
+        }
+
+        .nav-links a {
+            color: var(--light);
+            text-decoration: none;
+            font-weight: 500;
+            transition: var(--transition);
+            position: relative;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+        }
+
+        .nav-links a:after {
+            content: '';
+            position: absolute;
+            width: 0;
+            height: 1px;
+            bottom: -5px;
+            left: 0;
+            background: linear-gradient(90deg, var(--primary), var(--secondary));
+            transition: var(--transition);
+        }
+
+        .nav-links a:hover {
+            color: var(--neon-blue);
+        }
+
+        .nav-links a:hover:after {
+            width: 100%;
+            box-shadow: 0 0 8px var(--primary);
+        }
+
+        .auth-buttons {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            padding: 0.7rem 1.5rem;
+            border-radius: 4px;
+            font-weight: 600;
+            text-decoration: none;
+            transition: var(--transition);
+            display: inline-block;
+            font-size: 0.9rem;
+            letter-spacing: 0.5px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-outline {
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            background: transparent;
+        }
+
+        .btn-outline:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 0 15px rgba(42, 111, 255, 0.5);
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            border: 1px solid var(--primary);
+        }
+
+        .btn-primary:hover {
+            background: transparent;
+            color: var(--primary);
+            box-shadow: 0 0 15px rgba(42, 111, 255, 0.5);
+        }
+
+        .btn-agent {
+            background: linear-gradient(135deg, var(--agent-blue), var(--agent-purple));
+            color: white;
+            border: none;
+        }
+
+        .btn-agent:hover {
+            background: linear-gradient(135deg, var(--agent-purple), var(--agent-blue));
+            box-shadow: 0 0 20px rgba(114, 9, 183, 0.5);
+            transform: translateY(-2px);
+        }
+
+        .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn:disabled:hover {
+            background: var(--primary);
+            color: white;
+            box-shadow: none;
+        }
+
+        /* Platform Layout */
+        .platform-layout {
+            display: flex;
+            min-height: 100vh;
+            padding-top: 80px;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 250px;
+            background: rgba(10, 15, 28, 0.9);
+            border-right: 1px solid rgba(42, 111, 255, 0.2);
+            padding: 2rem 1rem;
+            position: fixed;
+            height: calc(100vh - 80px);
+            overflow-y: auto;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+        }
+
+        .sidebar-menu li {
+            margin-bottom: 0.5rem;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 1rem;
+            color: var(--gray);
+            text-decoration: none;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+
+        .sidebar-menu a:hover, .sidebar-menu a.active {
+            background: rgba(42, 111, 255, 0.1);
+            color: var(--primary);
+            border-left: 3px solid var(--primary);
+        }
+
+        .sidebar-menu i {
+            margin-right: 0.8rem;
+            width: 20px;
+            text-align: center;
+        }
+
+        .sidebar-section {
+            margin-top: 2rem;
+            padding-top: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .sidebar-section h3 {
+            font-size: 0.9rem;
+            color: var(--gray);
+            margin-bottom: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Main Content */
+        .main-content {
+            flex: 1;
+            margin-left: 250px;
+            padding: 2rem;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .page-title {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--light);
+        }
+
+        .page-subtitle {
+            color: var(--gray);
+            font-size: 0.9rem;
+            margin-top: 0.5rem;
+        }
+
+        .page-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        /* Agent Layout */
+        .agent-layout {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 2rem;
+        }
+
+        /* Agent Chat Container */
+        .agent-chat {
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 12px;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 200px);
+            overflow: hidden;
+        }
+
+        .agent-header {
+            background: linear-gradient(135deg, rgba(42, 111, 255, 0.2), rgba(157, 78, 221, 0.2));
+            padding: 1.5rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .agent-avatar {
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--agent-blue), var(--agent-purple));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            color: white;
+            box-shadow: 0 0 20px rgba(114, 9, 183, 0.3);
+        }
+
+        .agent-info h3 {
+            font-size: 1.3rem;
+            color: var(--light);
+            margin-bottom: 0.3rem;
+        }
+
+        .agent-info p {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--secondary);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--secondary);
+            animation: pulse 2s infinite;
+        }
+
+        /* Chat Messages */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .message {
+            display: flex;
+            gap: 1rem;
+            max-width: 85%;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .message.user {
+            align-self: flex-end;
+            flex-direction: row-reverse;
+        }
+
+        .message.agent {
+            align-self: flex-start;
+        }
+
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .user .message-avatar {
+            background: rgba(42, 111, 255, 0.2);
+            color: var(--primary);
+        }
+
+        .agent .message-avatar {
+            background: rgba(157, 78, 221, 0.2);
+            color: var(--purple);
+        }
+
+        .message-content {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            padding: 1rem 1.2rem;
+            position: relative;
+            max-width: 100%;
+        }
+
+        .user .message-content {
+            background: linear-gradient(135deg, rgba(42, 111, 255, 0.2), rgba(42, 111, 255, 0.1));
+            border-top-right-radius: 4px;
+            border-left: 3px solid var(--primary);
+        }
+
+        .agent .message-content {
+            background: linear-gradient(135deg, rgba(157, 78, 221, 0.1), rgba(114, 9, 183, 0.1));
+            border-top-left-radius: 4px;
+            border-left: 3px solid var(--purple);
+        }
+
+        .message-text {
+            color: var(--light);
+            line-height: 1.6;
+            font-size: 0.95rem;
+        }
+
+        .message-text p {
+            margin-bottom: 0.8rem;
+        }
+
+        .message-text ul, .message-text ol {
+            margin-left: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .message-text li {
+            margin-bottom: 0.5rem;
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: var(--gray);
+            margin-top: 0.5rem;
+            text-align: right;
+        }
+
+        .agent .message-time {
+            text-align: left;
+        }
+
+        /* Chat Input */
+        .chat-input-container {
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(10, 15, 28, 0.9);
+        }
+
+        .chat-input-wrapper {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+        }
+
+        .chat-input {
+            flex: 1;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(42, 111, 255, 0.3);
+            border-radius: 8px;
+            padding: 1rem 1.2rem;
+            color: var(--light);
+            font-family: 'Source Code Pro', monospace;
+            resize: none;
+            min-height: 60px;
+            max-height: 150px;
+            transition: var(--transition);
+        }
+
+        .chat-input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 15px rgba(42, 111, 255, 0.3);
+        }
+
+        .chat-input::placeholder {
+            color: var(--gray);
+        }
+
+        .input-actions {
+            display: flex;
+            gap: 0.5rem;
+            margin-top: 0.5rem;
+        }
+
+        .input-action-btn {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: var(--gray);
+            border-radius: 4px;
+            padding: 0.5rem;
+            cursor: pointer;
+            transition: var(--transition);
+            font-size: 0.8rem;
+        }
+
+        .input-action-btn:hover {
+            color: var(--light);
+            border-color: var(--primary);
+        }
+
+        /* Agent Sidebar */
+        .agent-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        /* Quick Actions */
+        .quick-actions {
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+
+        .section-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            background: rgba(42, 111, 255, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            color: var(--primary);
+        }
+
+        .section-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--light);
+        }
+
+        .quick-action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.8rem;
+        }
+
+        .quick-action-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            padding: 1rem;
+            color: var(--light);
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            gap: 0.5rem;
+        }
+
+        .quick-action-btn:hover {
+            background: rgba(42, 111, 255, 0.15);
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .quick-action-btn i {
+            font-size: 1.2rem;
+            color: var(--primary);
+        }
+
+        /* Agent Capabilities */
+        .agent-capabilities {
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+        }
+
+        .capability-list {
+            list-style: none;
+        }
+
+        .capability-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .capability-item:last-child {
+            border-bottom: none;
+        }
+
+        .capability-icon {
+            width: 24px;
+            height: 24px;
+            border-radius: 4px;
+            background: rgba(0, 212, 170, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            color: var(--secondary);
+            font-size: 0.7rem;
+        }
+
+        .capability-text {
+            font-size: 0.9rem;
+            color: var(--light);
+        }
+
+        /* Recent Conversations */
+        .recent-conversations {
+            background: rgba(10, 15, 28, 0.7);
+            border-radius: 12px;
+            padding: 1.5rem;
+            border: 1px solid rgba(42, 111, 255, 0.2);
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .conversation-list {
+            list-style: none;
+        }
+
+        .conversation-item {
+            display: flex;
+            align-items: center;
+            padding: 0.8rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .conversation-item:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 6px;
+            padding-left: 0.5rem;
+            padding-right: 0.5rem;
+        }
+
+        .conversation-item:last-child {
+            border-bottom: none;
+        }
+
+        .conversation-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            background: rgba(157, 78, 221, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 0.8rem;
+            color: var(--purple);
+        }
+
+        .conversation-text {
+            flex: 1;
+            font-size: 0.85rem;
+            color: var(--light);
+            overflow: hidden;
+            white-space: nowrap;
+            text-overflow: ellipsis;
+        }
+
+        .conversation-time {
+            font-size: 0.7rem;
+            color: var(--gray);
+            white-space: nowrap;
+        }
+
+        /* Agent Response Formatting */
+        .agent-response {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-left: 4px solid var(--purple);
+        }
+
+        .response-section {
+            margin-bottom: 1.5rem;
+        }
+
+        .response-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .section-title {
+            color: var(--neon-blue);
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 0.8rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .section-title i {
+            color: var(--purple);
+        }
+
+        .section-content {
+            color: var(--light);
+            font-size: 0.9rem;
+            line-height: 1.6;
+        }
+
+        .section-content ul {
+            margin-left: 1.5rem;
+            margin-bottom: 0.8rem;
+        }
+
+        .section-content li {
+            margin-bottom: 0.5rem;
+            position: relative;
+            padding-left: 0.5rem;
+        }
+
+        .section-content li:before {
+            content: '▸';
+            color: var(--secondary);
+            position: absolute;
+            left: -1rem;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            padding: 0.3rem 0.8rem;
+            background: rgba(0, 212, 170, 0.2);
+            color: var(--secondary);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            border: 1px solid var(--secondary);
+        }
+
+        /* Toast Notifications */
+        .toast {
+            position: fixed;
+            top: 100px;
+            right: 20px;
+            padding: 1rem 1.5rem;
+            border-radius: 6px;
+            color: white;
+            font-weight: 500;
+            z-index: 10000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            max-width: 400px;
+        }
+
+        .toast.show {
+            transform: translateX(0);
+        }
+
+        .toast.success {
+            background: var(--secondary);
+            border-left: 4px solid var(--neon-green);
+        }
+
+        .toast.error {
+            background: var(--accent);
+            border-left: 4px solid #ff3b3b;
+        }
+
+        .toast.info {
+            background: var(--primary);
+            border-left: 4px solid var(--neon-blue);
+        }
+
+        /* Loading Spinner */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--light);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 1rem;
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 0.3rem;
+        }
+
+        .typing-dots span {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--secondary);
+            animation: typing 1.4s infinite;
+        }
+
+        .typing-dots span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-dots span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        /* Animations */
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(42, 111, 255, 0.7);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(42, 111, 255, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(42, 111, 255, 0);
+            }
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes typing {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .sidebar {
+                width: 200px;
+            }
+            .main-content {
+                margin-left: 200px;
+            }
+            .agent-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .platform-layout {
+                flex-direction: column;
+            }
+            .sidebar {
+                position: relative;
+                width: 100%;
+                height: auto;
+            }
+            .main-content {
+                margin-left: 0;
+            }
+            .quick-action-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Enhanced Response Styling */
+.formatted-content {
+    color: var(--light);
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.formatted-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.8rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+    transition: var(--transition);
+}
+
+.formatted-step:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateX(3px);
+}
+
+.step-number-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 24px;
+    height: 24px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: 600;
+    font-size: 0.8rem;
+    margin-right: 0.8rem;
+    flex-shrink: 0;
+}
+
+.step-text {
+    flex: 1;
+}
+
+.formatted-bullet {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.6rem;
+    padding-left: 0.5rem;
+}
+
+.bullet-icon {
+    color: var(--secondary);
+    margin-right: 0.8rem;
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.bullet-text {
+    flex: 1;
+}
+
+/* Plain text response styling */
+.plain-text-response {
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.numbered-step {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 6px;
+    transition: var(--transition);
+}
+
+.numbered-step:hover {
+    background: rgba(0, 0, 0, 0.3);
+    transform: translateX(5px);
+}
+
+.step-number {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 32px;
+    height: 32px;
+    background: var(--primary);
+    color: white;
+    border-radius: 50%;
+    font-weight: 700;
+    font-size: 0.9rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+}
+
+.step-content {
+    flex: 1;
+    padding-top: 0.3rem;
+}
+
+.bullet-point {
+    display: flex;
+    align-items: flex-start;
+    margin-bottom: 0.8rem;
+    padding: 0.5rem;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: 6px;
+}
+
+.bullet-icon {
+    color: var(--secondary);
+    margin-right: 0.8rem;
+    font-size: 0.8rem;
+    padding-top: 0.2rem;
+}
+
+.bullet-content {
+    flex: 1;
+}
+
+.content-paragraph {
+    margin-bottom: 1rem;
+    padding: 0.8rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    border-left: 3px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-paragraph {
+    margin-bottom: 0.8rem;
+    padding: 0.5rem 0;
+}
+
+/* Text highlighting styles */
+.highlighted-text {
+    color: var(--neon-blue);
+    font-weight: 600;
+    background: rgba(0, 245, 255, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+}
+
+.highlight-term {
+    color: var(--gold);
+    font-weight: 600;
+    background: rgba(255, 209, 102, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+}
+
+.bold-highlight {
+    color: var(--primary);
+    font-weight: 700;
+}
+
+/* Term categories */
+.urgent-term {
+    color: var(--accent);
+    font-weight: 600;
+    background: rgba(255, 107, 107, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+}
+
+.protective-term {
+    color: var(--secondary);
+    font-weight: 600;
+    background: rgba(0, 212, 170, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+}
+
+.detective-term {
+    color: var(--purple);
+    font-weight: 600;
+    background: rgba(157, 78, 221, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+}
+
+.recovery-term {
+    color: var(--neon-green);
+    font-weight: 600;
+    background: rgba(57, 255, 20, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+}
+
+.tool-term {
+    color: var(--neon-blue);
+    font-weight: 600;
+    background: rgba(0, 245, 255, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    text-transform: uppercase;
+    font-size: 0.85em;
+}
+
+.threat-term {
+    color: var(--accent);
+    font-weight: 600;
+    background: rgba(255, 107, 107, 0.1);
+    padding: 0.1rem 0.3rem;
+    border-radius: 3px;
+    border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+/* Response section styling */
+.response-section {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    transition: var(--transition);
+}
+
+.response-section:hover {
+    background: rgba(0, 0, 0, 0.25);
+    transform: translateY(-2px);
+}
+
+.section-title {
+    color: var(--neon-blue);
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.section-title i {
+    font-size: 0.9rem;
+}
+
+.no-sections {
+    color: var(--gray);
+    font-style: italic;
+    text-align: center;
+    padding: 2rem;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 6px;
+    border: 1px dashed rgba(255, 255, 255, 0.1);
+}
+    </style>
+</head>
+<body>
+    <!-- Matrix Background -->
+    <canvas class="matrix-bg" id="matrixCanvas"></canvas>
+    <div class="grid-bg"></div>
+
+    <!-- Toast Notifications -->
+    <div id="toastContainer"></div>
+
+    <!-- Header -->
+    <header>
+        <div class="container header-container">
+            <div class="logo">
+                <i class="fas fa-robot"></i>
+                SOC Agent
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">Home</a></li>
+                <li><a href="platform.html">Platform</a></li>
+                <li><a href="threat-feed.html">Threat Feed</a></li>
+                <li><a href="ioc-submission.html">IOC Submission</a></li>
+                <li><a href="agent.html" class="active">SOC Agent</a></li>
+                <li><a href="#">How It Works</a></li>
+            </ul>
+            <div class="auth-buttons">
+                <div class="user-profile">
+                    <span style="margin-right: 1rem; color: var(--gray);">Analyst_01</span>
+                </div>
+                <a href="#" class="btn btn-outline"><i class="fas fa-sign-out-alt"></i> Log Out</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Platform Layout -->
+    <div class="platform-layout">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <ul class="sidebar-menu">
+                <li><a href="Platform.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a></li>
+                <li><a href="ThreatFeed.html"><i class="fas fa-broadcast-tower"></i> Threat Feed</a></li>
+                <li><a href="ThreatSearch.html"><i class="fas fa-search"></i> Threat Search</a></li>
+                <li><a href="IocSubmission.html"><i class="fas fa-share-alt"></i> IOC Submission</a></li>
+                <li><a href="agent.html" class="active"><i class="fas fa-robot"></i> SOC Agent</a></li>
+                <li><a href="BlockChainExplorer.html"><i class="fas fa-project-diagram"></i> Blockchain Explorer</a></li>
+                <li><a href="Analytics.html"><i class="fas fa-chart-bar"></i> Analytics</a></li>
+                <li><a href="Settings.html"><i class="fas fa-cog"></i> Settings</a></li>
+            </ul>
+
+            <div class="sidebar-section">
+                <h3>Agent Tools</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="#" id="newChatBtn"><i class="fas fa-plus-circle"></i> New Chat</a></li>
+                    <li><a href="#" id="saveChatBtn"><i class="fas fa-save"></i> Save Conversation</a></li>
+                    <li><a href="#" id="exportChatBtn"><i class="fas fa-download"></i> Export Chat</a></li>
+                    <li><a href="#" id="clearChatBtn"><i class="fas fa-trash"></i> Clear Chat</a></li>
+                </ul>
+            </div>
+
+            <div class="sidebar-section">
+                <h3>Agent Settings</h3>
+                <ul class="sidebar-menu">
+                    <li><a href="#" id="agentSettingsBtn"><i class="fas fa-cog"></i> Agent Configuration</a></li>
+                    <li><a href="#" id="knowledgeBaseBtn"><i class="fas fa-book"></i> Knowledge Base</a></li>
+                    <li><a href="#" id="trainingBtn"><i class="fas fa-graduation-cap"></i> Agent Training</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title">SOC Agent Assistant</h1>
+                    <p class="page-subtitle">AI-powered security assistant for threat analysis, incident response, and security guidance</p>
+                </div>
+                <div class="page-actions">
+                    <button class="btn btn-agent" id="quickAnalysisBtn">
+                        <i class="fas fa-bolt"></i> Quick Analysis
+                    </button>
+                    <button class="btn btn-outline" id="helpBtn"><i class="fas fa-question-circle"></i> Help</button>
+                </div>
+            </div>
+
+            <div class="agent-layout">
+                <!-- Agent Chat Container -->
+                <div class="agent-chat">
+                    <div class="agent-header">
+                        <div class="agent-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="agent-info">
+                            <h3>SOC-Agent v1.0</h3>
+                            <p>Security Operations Center AI Assistant</p>
+                            <div class="agent-status">
+                                <div class="status-dot"></div>
+                                <span>Online & Ready</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-messages" id="chatMessages">
+                        <!-- Welcome message -->
+                        <div class="message agent">
+                            <div class="message-avatar">
+                                <i class="fas fa-robot"></i>
+                            </div>
+                            <div class="message-content">
+                                <div class="message-text">
+                                    <p>👋 <strong>Hello, I'm SOC-Agent!</strong></p>
+                                    <p>I'm your AI security assistant trained to help with:</p>
+                                    <ul>
+                                        <li>Threat analysis and IOC investigation</li>
+                                        <li>Incident response guidance</li>
+                                        <li>Security control recommendations</li>
+                                        <li>Vulnerability assessment</li>
+                                        <li>Security best practices</li>
+                                    </ul>
+                                    <p>How can I assist you with your security operations today?</p>
+                                </div>
+                                <div class="message-time">Just now</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="chat-input-container">
+                        <div class="chat-input-wrapper">
+                            <textarea class="chat-input" id="chatInput" 
+                                      placeholder="Ask SOC-Agent about threats, incidents, or security guidance... (Press Shift+Enter for new line, Enter to send)" 
+                                      rows="1"></textarea>
+                            <button class="btn btn-agent" id="sendBtn">
+                                <i class="fas fa-paper-plane"></i> Send
+                            </button>
+                        </div>
+                        <div class="input-actions">
+                            <button class="input-action-btn" data-action="ioc">
+                                <i class="fas fa-search"></i> IOC Analysis
+                            </button>
+                            <button class="input-action-btn" data-action="threat">
+                                <i class="fas fa-shield-alt"></i> Threat Intel
+                            </button>
+                            <button class="input-action-btn" data-action="incident">
+                                <i class="fas fa-exclamation-triangle"></i> Incident Response
+                            </button>
+                            <button class="input-action-btn" data-action="vulnerability">
+                                <i class="fas fa-bug"></i> Vulnerability
+                            </button>
+                            <button class="input-action-btn" data-action="compliance">
+                                <i class="fas fa-clipboard-check"></i> Compliance
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agent Sidebar -->
+                <div class="agent-sidebar">
+                    <!-- Quick Actions -->
+                    <div class="quick-actions">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="fas fa-bolt"></i>
+                            </div>
+                            <h3 class="section-title">Quick Actions</h3>
+                        </div>
+                        <div class="quick-action-grid">
+                            <button class="quick-action-btn" data-prompt="Analyze this suspicious IP: 192.168.1.100">
+                                <i class="fas fa-network-wired"></i>
+                                <span>Analyze IP</span>
+                            </button>
+                            <button class="quick-action-btn" data-prompt="Check if this domain is malicious: example.com">
+                                <i class="fas fa-globe"></i>
+                                <span>Check Domain</span>
+                            </button>
+                            <button class="quick-action-btn" data-prompt="What are immediate steps for a ransomware incident?">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span>Ransomware Response</span>
+                            </button>
+                            <button class="quick-action-btn" data-prompt="Recommend security controls for a financial institution">
+                                <i class="fas fa-shield-alt"></i>
+                                <span>Security Controls</span>
+                            </button>
+                            <button class="quick-action-btn" data-prompt="How to investigate a potential data breach?">
+                                <i class="fas fa-search"></i>
+                                <span>Breach Investigation</span>
+                            </button>
+                            <button class="quick-action-btn" data-prompt="Best practices for network segmentation">
+                                <i class="fas fa-sitemap"></i>
+                                <span>Network Security</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Agent Capabilities -->
+                    <div class="agent-capabilities">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="fas fa-star"></i>
+                            </div>
+                            <h3 class="section-title">Agent Capabilities</h3>
+                        </div>
+                        <ul class="capability-list">
+                            <li class="capability-item">
+                                <div class="capability-icon">
+                                    <i class="fas fa-search"></i>
+                                </div>
+                                <div class="capability-text">Threat Intelligence Analysis</div>
+                            </li>
+                            <li class="capability-item">
+                                <div class="capability-icon">
+                                    <i class="fas fa-user-shield"></i>
+                                </div>
+                                <div class="capability-text">Incident Response Guidance</div>
+                            </li>
+                            <li class="capability-item">
+                                <div class="capability-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="capability-text">Security Control Recommendations</div>
+                            </li>
+                            <li class="capability-item">
+                                <div class="capability-icon">
+                                    <i class="fas fa-bug"></i>
+                                </div>
+                                <div class="capability-text">Vulnerability Assessment</div>
+                            </li>
+                            <li class="capability-item">
+                                <div class="capability-icon">
+                                    <i class="fas fa-file-alt"></i>
+                                </div>
+                                <div class="capability-text">Compliance & Best Practices</div>
+                            </li>
+                            <li class="capability-item">
+                                <div class="capability-icon">
+                                    <i class="fas fa-code"></i>
+                                </div>
+                                <div class="capability-text">SIEM Query Generation</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Recent Conversations -->
+                    <div class="recent-conversations">
+                        <div class="section-header">
+                            <div class="section-icon">
+                                <i class="fas fa-history"></i>
+                            </div>
+                            <h3 class="section-title">Recent Conversations</h3>
+                        </div>
+                        <ul class="conversation-list" id="conversationList">
+                            <li class="conversation-item">
+                                <div class="conversation-icon">
+                                    <i class="fas fa-network-wired"></i>
+                                </div>
+                                <div class="conversation-text">IP 185.22.33.45 analysis...</div>
+                                <div class="conversation-time">2h ago</div>
+                            </li>
+                            <li class="conversation-item">
+                                <div class="conversation-icon">
+                                    <i class="fas fa-shield-alt"></i>
+                                </div>
+                                <div class="conversation-text">Ransomware prevention...</div>
+                                <div class="conversation-time">5h ago</div>
+                            </li>
+                            <li class="conversation-item">
+                                <div class="conversation-icon">
+                                    <i class="fas fa-exclamation-triangle"></i>
+                                </div>
+                                <div class="conversation-text">Incident response plan...</div>
+                                <div class="conversation-time">1d ago</div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'http://localhost:3000/api';
+        
+        // DOM Elements
+        const chatMessages = document.getElementById('chatMessages');
+        const chatInput = document.getElementById('chatInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const conversationList = document.getElementById('conversationList');
+        
+        // Matrix Background
+        const canvas = document.getElementById('matrixCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+        
+        const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789$#@%&*";
+        const charArray = chars.split("");
+        
+        const fontSize = 12;
+        const columns = canvas.width / fontSize;
+        
+        const drops = [];
+        for(let i = 0; i < columns; i++) {
+            drops[i] = 1;
+        }
+        
+        function drawMatrix() {
+            ctx.fillStyle = "rgba(5, 8, 17, 0.04)";
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            ctx.fillStyle = "#0F0";
+            ctx.font = fontSize + "px monospace";
+            
+            for(let i = 0; i < drops.length; i++) {
+                const text = charArray[Math.floor(Math.random() * charArray.length)];
+                ctx.fillText(text, i * fontSize, drops[i] * fontSize);
+                
+                if(drops[i] * fontSize > canvas.height && Math.random() > 0.975) {
+                    drops[i] = 0;
+                }
+                
+                drops[i]++;
+            }
+        }
+        
+        setInterval(drawMatrix, 35);
+
+        // Toast notification system
+        function showToast(message, type = 'info', duration = 5000) {
+            const toastContainer = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.textContent = message;
+            
+            toastContainer.appendChild(toast);
+            
+            setTimeout(() => toast.classList.add('show'), 10);
+            
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        // Format agent response
+       // Format agent response with better parsing and colorful formatting
+function formatAgentResponse(response) {
+    // Try to parse structured sections first
+    const sections = parseResponseSections(response);
+    
+    // If we found structured sections, format them
+    if (sections.summary || sections.immediateActions || sections.recommendations) {
+        return formatStructuredResponse(sections);
+    }
+    
+    // Otherwise, format as a clean, colorful text response
+    return formatPlainTextResponse(response);
+}
+
+// Parse response sections with improved logic
+function parseResponseSections(response) {
+    const sections = {
+        tldr: '',
+        summary: '',
+        impact: '',
+        immediateActions: '',
+        investigationSteps: '',
+        recommendations: '',
+        confidence: '',
+        queries: '',
+        conclusion: ''
+    };
+
+    const lines = response.split('\n');
+    let currentSection = null;
+    let currentContent = [];
+
+    for (const line of lines) {
+        const trimmedLine = line.trim();
+        
+        // Check for various section header patterns
+        if (trimmedLine.match(/^#{1,3}\s+TL;DR|^TL;DR|^TLDR/i)) {
+            saveSection(sections, currentSection, currentContent);
+            currentSection = 'tldr';
+            currentContent = [];
+        } 
+        else if (trimmedLine.match(/^#{1,3}\s+Summary|^Summary|^1\./i)) {
+            saveSection(sections, currentSection, currentContent);
+            currentSection = 'summary';
+            currentContent = [];
+        } 
+        else if (trimmedLine.match(/^#{1,3}\s+Impact|^Impact|^2\./i)) {
+            saveSection(sections, currentSection, currentContent);
+            currentSection = 'impact';
+            currentContent = [];
+        } 
+        else if (trimmedLine.match(/^#{1,3}\s+Immediate Actions|^Immediate Actions|^3\.|^Required.*Actions/i)) {
+            saveSection(sections, currentSection, currentContent);
+            currentSection = 'immediateActions';
+            currentContent = [];
+        } 
+        else if (trimmedLine.match(/^#{1,3}\s+Investigation Steps|^Investigation Steps|^4\./i)) {
+            saveSection(sections, currentSection, currentContent);
+            currentSection = 'investigationSteps';
+            currentContent = [];
+        } 
+        else if (trimmedLine.match(/^#{1,3}\s+Recommendations|^Recommendations|^5\.|^Long-term.*Recommendations/i)) {
+            saveSection(sections, currentSection, currentContent);
+            currentSection = 'recommendations';
+            currentContent = [];
+        } 
+        else if (trimmedLine.match(/^#{1,3}\s+Confidence|^Confidence|^6\./i)) {
+            saveSection(sections, currentSection, currentContent);
+            currentSection = 'confidence';
+            currentContent = [];
+        } 
+        else if (trimmedLine.match(/^#{1,3}\s+Queries|^Queries|^Suggested.*queries/i)) {
+            saveSection(sections, currentSection, currentContent);
+            currentSection = 'queries';
+            currentContent = [];
+        } 
+        else if (trimmedLine.match(/^#{1,3}\s+Conclusion|^Conclusion|^7\./i)) {
+            saveSection(sections, currentSection, currentContent);
+            currentSection = 'conclusion';
+            currentContent = [];
+        } 
+        else if (currentSection && trimmedLine) {
+            currentContent.push(line);
+        }
+        // Also check for numbered steps in plain text
+        else if (trimmedLine.match(/^\d+\.\s+/)) {
+            if (!currentSection) {
+                currentSection = 'investigationSteps';
+            }
+            currentContent.push(line);
+        }
+    }
+
+    // Save the last section
+    saveSection(sections, currentSection, currentContent);
+
+    // If no sections were found but we have content, put it all in summary
+    if (!sections.summary && currentContent.length > 0) {
+        sections.summary = currentContent.join('\n');
+    }
+
+    return sections;
+}
+
+// Format structured response with colorful sections
+function formatStructuredResponse(sections) {
+    let html = '';
+    
+    const sectionConfig = {
+        tldr: { icon: 'fa-bolt', title: 'TL;DR', color: 'var(--gold)' },
+        summary: { icon: 'fa-file-alt', title: 'Summary', color: 'var(--primary)' },
+        impact: { icon: 'fa-exclamation-triangle', title: 'Impact', color: 'var(--accent)' },
+        immediateActions: { icon: 'fa-running', title: 'Immediate Actions', color: 'var(--secondary)' },
+        investigationSteps: { icon: 'fa-search', title: 'Investigation Steps', color: 'var(--purple)' },
+        recommendations: { icon: 'fa-chart-line', title: 'Recommendations', color: 'var(--neon-blue)' },
+        confidence: { icon: 'fa-chart-bar', title: 'Confidence', color: 'var(--secondary)' },
+        queries: { icon: 'fa-terminal', title: 'SIEM/EDR Queries', color: 'var(--neon-green)' },
+        conclusion: { icon: 'fa-flag-checkered', title: 'Conclusion', color: 'var(--gold)' }
+    };
+
+    // Order of sections to display
+    const sectionOrder = ['tldr', 'summary', 'impact', 'immediateActions', 'investigationSteps', 'recommendations', 'confidence', 'queries', 'conclusion'];
+
+    for (const sectionKey of sectionOrder) {
+        if (sections[sectionKey]) {
+            const config = sectionConfig[sectionKey];
+            html += `
+                <div class="response-section" style="border-left: 4px solid ${config.color};">
+                    <div class="section-title" style="color: ${config.color};">
+                        <i class="fas ${config.icon}"></i> ${config.title}
+                    </div>
+                    <div class="section-content formatted-content">
+                        ${formatSectionContent(sections[sectionKey])}
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    return html || '<div class="no-sections">No structured response available.</div>';
+}
+
+// Format plain text response with colorful formatting
+function formatPlainTextResponse(text) {
+    // Clean up the text
+    let cleanedText = text.trim();
+    
+    // Remove markdown headers
+    cleanedText = cleanedText.replace(/^#{1,3}\s+/gm, '');
+    
+    // Format numbered lists with colorful bullets
+    cleanedText = cleanedText.replace(/^(\d+)\.\s+(.*)$/gm, (match, number, content) => {
+        const colors = ['var(--primary)', 'var(--secondary)', 'var(--accent)', 'var(--purple)', 'var(--gold)'];
+        const colorIndex = (parseInt(number) - 1) % colors.length;
+        return `
+            <div class="numbered-step" style="border-left: 3px solid ${colors[colorIndex]};">
+                <div class="step-number" style="background: ${colors[colorIndex]};">${number}</div>
+                <div class="step-content">${formatContentLine(content)}</div>
+            </div>
+        `;
+    });
+    
+    // Format bullet points
+    cleanedText = cleanedText.replace(/^[-*]\s+(.*)$/gm, (match, content) => {
+        return `
+            <div class="bullet-point">
+                <div class="bullet-icon">▶</div>
+                <div class="bullet-content">${formatContentLine(content)}</div>
+            </div>
+        `;
+    });
+    
+    // Format bold text
+    cleanedText = cleanedText.replace(/\*\*(.*?)\*\*/g, '<span class="highlighted-text">$1</span>');
+    
+    // Format paragraphs
+    const paragraphs = cleanedText.split('\n\n');
+    let formattedParagraphs = [];
+    
+    for (const paragraph of paragraphs) {
+        if (paragraph.trim()) {
+            if (!paragraph.includes('numbered-step') && !paragraph.includes('bullet-point')) {
+                formattedParagraphs.push(`<p class="content-paragraph">${formatContentLine(paragraph)}</p>`);
+            } else {
+                formattedParagraphs.push(paragraph);
+            }
+        }
+    }
+    
+    return `
+        <div class="plain-text-response">
+            ${formattedParagraphs.join('\n')}
+        </div>
+    `;
+}
+
+// Format section content with proper styling
+function formatSectionContent(content) {
+    let formatted = content;
+    
+    // Format numbered lists
+    formatted = formatted.replace(/^(\d+)\.\s+(.*)$/gm, (match, number, text) => {
+        return `
+            <div class="formatted-step">
+                <span class="step-number-badge">${number}</span>
+                <span class="step-text">${formatInlineText(text)}</span>
+            </div>
+        `;
+    });
+    
+    // Format bullet points
+    formatted = formatted.replace(/^[-*]\s+(.*)$/gm, (match, text) => {
+        return `
+            <div class="formatted-bullet">
+                <span class="bullet-icon">•</span>
+                <span class="bullet-text">${formatInlineText(text)}</span>
+            </div>
+        `;
+    });
+    
+    // Format bold text
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<span class="highlight-term">$1</span>');
+    
+    // Split into paragraphs if needed
+    if (formatted.includes('\n\n')) {
+        const paragraphs = formatted.split('\n\n');
+        formatted = paragraphs.map(p => {
+            if (p.trim()) {
+                return `<p class="section-paragraph">${formatInlineText(p)}</p>`;
+            }
+            return '';
+        }).join('');
+    }
+    
+    return formatted;
+}
+
+// Format content line with inline styling
+function formatContentLine(line) {
+    let formatted = line;
+    
+    // Highlight important terms
+    const importantTerms = [
+        { pattern: /\b(immediate|urgent|critical|emergency)\b/gi, class: 'urgent-term' },
+        { pattern: /\b(prevent|protect|secure|defend)\b/gi, class: 'protective-term' },
+        { pattern: /\b(detect|monitor|alert|investigate)\b/gi, class: 'detective-term' },
+        { pattern: /\b(recover|restore|remediate|patch)\b/gi, class: 'recovery-term' },
+        { pattern: /\b(SIEM|EDR|XDR|SOAR|IDS|IPS|firewall)\b/gi, class: 'tool-term' },
+        { pattern: /\b(ransomware|malware|virus|trojan|phishing)\b/gi, class: 'threat-term' }
+    ];
+    
+    for (const { pattern, className } of importantTerms) {
+        formatted = formatted.replace(pattern, (match) => {
+            return `<span class="${className}">${match}</span>`;
+        });
+    }
+    
+    // Format bold text
+    formatted = formatted.replace(/\*\*(.*?)\*\*/g, '<span class="bold-highlight">$1</span>');
+    
+    return formatted;
+}
+
+// Format inline text
+function formatInlineText(text) {
+    return formatContentLine(text);
+}
+
+function saveSection(sections, section, content) {
+    if (section && content.length > 0) {
+        sections[section] = content.join('\n').trim();
+    }
+}
+
+        // Add message to chat
+        function addMessage(content, isUser = false, timestamp = new Date()) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${isUser ? 'user' : 'agent'}`;
+            
+            const timeStr = timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            messageDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-${isUser ? 'user' : 'robot'}"></i>
+                </div>
+                <div class="message-content">
+                    <div class="message-text">${isUser ? content : formatAgentResponse(content)}</div>
+                    <div class="message-time">${timeStr}</div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Show typing indicator
+        function showTypingIndicator() {
+            const typingDiv = document.createElement('div');
+            typingDiv.className = 'typing-indicator';
+            typingDiv.id = 'typingIndicator';
+            typingDiv.innerHTML = `
+                <div class="message-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div class="typing-dots">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </div>
+                <span>SOC-Agent is thinking...</span>
+            `;
+            
+            chatMessages.appendChild(typingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Hide typing indicator
+        function hideTypingIndicator() {
+            const typingIndicator = document.getElementById('typingIndicator');
+            if (typingIndicator) {
+                typingIndicator.remove();
+            }
+        }
+
+        // Send message to agent
+        async function sendMessage() {
+            const prompt = chatInput.value.trim();
+            if (!prompt) return;
+
+            // Add user message
+            addMessage(prompt, true);
+            chatInput.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Disable input while processing
+            chatInput.disabled = true;
+            sendBtn.disabled = true;
+
+            try {
+                // Prepare context (you can extract IOCs, CVEs, etc. from prompt)
+                const context = {};
+                
+                // Simple IOC extraction (for demonstration)
+                const ipMatch = prompt.match(/\b(?:\d{1,3}\.){3}\d{1,3}\b/);
+                const domainMatch = prompt.match(/\b(?:[a-z0-9]+(-[a-z0-9]+)*\.)+[a-z]{2,}\b/i);
+                const cveMatch = prompt.match(/\bCVE-\d{4}-\d+\b/i);
+                
+                if (ipMatch) context.ioc = ipMatch[0];
+                if (domainMatch) context.ioc = domainMatch[0];
+                if (cveMatch) context.cve = cveMatch[0];
+                if (prompt.toLowerCase().includes('threat intel') || prompt.toLowerCase().includes('intelligence')) {
+                    context.query = prompt;
+                }
+
+                // Call agent API
+                const response = await fetch(`${API_BASE_URL}/agent/respond`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        prompt: prompt,
+                        context: context
+                    })
+                });
+
+                const result = await response.json();
+
+                if (response.ok && result.success) {
+                    // Add agent response
+                    addMessage(result.reply, false);
+                    
+                    // Update recent conversations
+                    updateRecentConversations(prompt.substring(0, 30) + '...');
+                    
+                    showToast('SOC-Agent responded successfully', 'success');
+                } else {
+                    throw new Error(result.error || 'Agent request failed');
+                }
+            } catch (error) {
+                console.error('Agent error:', error);
+                addMessage(`I'm sorry, I encountered an error: ${error.message}. Please try again or rephrase your question.`, false);
+                showToast(`Failed to get response: ${error.message}`, 'error');
+            } finally {
+                // Re-enable input
+                chatInput.disabled = false;
+                sendBtn.disabled = false;
+                chatInput.focus();
+                
+                // Hide typing indicator
+                hideTypingIndicator();
+            }
+        }
+
+        // Update recent conversations
+        function updateRecentConversations(text) {
+            const now = new Date();
+            const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+            
+            const conversationItem = document.createElement('li');
+            conversationItem.className = 'conversation-item';
+            conversationItem.innerHTML = `
+                <div class="conversation-icon">
+                    <i class="fas fa-comment"></i>
+                </div>
+                <div class="conversation-text">${text}</div>
+                <div class="conversation-time">${timeStr}</div>
+            `;
+            
+            // Add to beginning of list
+            conversationList.insertBefore(conversationItem, conversationList.firstChild);
+            
+            // Limit to 5 items
+            if (conversationList.children.length > 5) {
+                conversationList.removeChild(conversationList.lastChild);
+            }
+        }
+
+        // Quick action buttons
+        document.querySelectorAll('.quick-action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const prompt = this.getAttribute('data-prompt');
+                if (prompt) {
+                    chatInput.value = prompt;
+                    chatInput.focus();
+                }
+            });
+        });
+
+        // Input action buttons
+        document.querySelectorAll('.input-action-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const action = this.getAttribute('data-action');
+                const prompts = {
+                    ioc: 'Analyze this IOC for threats and provide investigation steps: ',
+                    threat: 'Provide threat intelligence about: ',
+                    incident: 'Outline incident response steps for: ',
+                    vulnerability: 'Assess vulnerabilities in: ',
+                    compliance: 'Check compliance requirements for: '
+                };
+                
+                if (prompts[action]) {
+                    const currentText = chatInput.value;
+                    chatInput.value = currentText ? currentText : prompts[action];
+                    chatInput.focus();
+                    chatInput.setSelectionRange(chatInput.value.length, chatInput.value.length);
+                }
+            });
+        });
+
+        // Send button click
+        sendBtn.addEventListener('click', sendMessage);
+
+        // Enter to send, Shift+Enter for new line
+        chatInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        chatInput.addEventListener('input', function() {
+            this.style.height = 'auto';
+            this.style.height = (this.scrollHeight) + 'px';
+        });
+
+        // Sidebar actions
+        document.getElementById('newChatBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (chatMessages.children.length > 1) {
+                if (confirm('Start a new conversation? Current chat will be cleared.')) {
+                    // Keep only the welcome message
+                    while (chatMessages.children.length > 1) {
+                        chatMessages.removeChild(chatMessages.lastChild);
+                    }
+                    showToast('New conversation started', 'info');
+                }
+            }
+        });
+
+        document.getElementById('saveChatBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            showToast('Conversation saved to history', 'success');
+        });
+
+        document.getElementById('exportChatBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            showToast('Chat exported as PDF', 'info');
+        });
+
+        document.getElementById('clearChatBtn').addEventListener('click', function(e) {
+            e.preventDefault();
+            if (confirm('Clear entire conversation?')) {
+                // Keep only the welcome message
+                while (chatMessages.children.length > 1) {
+                    chatMessages.removeChild(chatMessages.lastChild);
+                }
+                showToast('Conversation cleared', 'info');
+            }
+        });
+
+        // Quick Analysis button
+        document.getElementById('quickAnalysisBtn').addEventListener('click', function() {
+            chatInput.value = 'Quick security analysis: current threats, vulnerabilities, and immediate actions needed.';
+            chatInput.focus();
+        });
+
+        // Help button
+        document.getElementById('helpBtn').addEventListener('click', function() {
+            const helpMessage = `**SOC-Agent Help Guide**
+
+**Available Commands:**
+- "Analyze [IP/Domain]" - Threat analysis
+- "Investigate [incident type]" - Incident response guidance
+- "Recommend [security control]" - Security control suggestions
+- "Check [vulnerability]" - Vulnerability assessment
+- "Compliance [standard]" - Compliance guidance
+
+**Quick Tips:**
+1. Be specific with IOCs for better analysis
+2. Include context about your environment
+3. Ask follow-up questions for clarification
+4. Use the quick action buttons for common queries
+
+**Examples:**
+- "Analyze suspicious IP 192.168.1.100"
+- "How to respond to ransomware incident?"
+- "Recommend EDR solutions"
+- "Check CVE-2023-1234 impact"`;
+            
+            addMessage(helpMessage, false);
+            showToast('Help guide displayed', 'info');
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            chatInput.focus();
+        });
+    </script>
+</body>
+</html>
